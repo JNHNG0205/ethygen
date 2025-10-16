@@ -96,11 +96,15 @@ Partner technologies used:
 ---
 
 ## Getting Started
-1. Clone the repo:  
+### Prerequisites
+- Node.js ≥ 18
+- npm or yarn
+- Testnet wallets funded with test ETH/USDC/USDT/etc.
+- RPC endpoints for all target testnets
+
+### Clone & Install 
 ```bash
 git clone https://github.com/yourusername/ethygen.git
 cd ethygen
 npm install
 npm run dev
-
-
