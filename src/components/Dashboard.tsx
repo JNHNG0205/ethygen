@@ -12,7 +12,7 @@ import WalletFunding from './WalletFunding';
 import WalletCreation from './WalletCreation';
 import Navbar from './Navbar';
 
-export default function WalletDashboard() {
+export default function Dashboard() {
   const { ready, authenticated, login, logout } = usePrivy();
   const { wallets } = useWallets();
   const { setActiveWallet } = useSetActiveWallet();

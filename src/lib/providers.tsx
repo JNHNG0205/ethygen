@@ -20,16 +20,17 @@ const wagmiConfig = createConfig({
   },
 });
 
-// Privy configuration
+// Privy configuration - Smart Wallet Only (No EOA support)
 const privyConfig = {
   appearance: {
     theme: 'light' as const,
     accentColor: '#676FFF' as const,
     logo: 'https://your-logo-url.com/logo.png',
   },
+  // Force all users to get smart wallets - no EOA support
   embeddedWallets: {
     ethereum: {
-      createOnLogin: 'users-without-wallets' as const,
+      createOnLogin: 'all-users' as const, // Force ALL users to get smart wallets
       noPromptOnSignature: true,
       noPromptOnTransaction: true,
       noPromptOnTransactionReceipt: true,
@@ -38,11 +39,18 @@ const privyConfig = {
   // Enable smart wallets with embedded signers for auto-signing
   smartWallets: {
     ethereum: {
-      createOnLogin: 'users-without-wallets' as const,
+      createOnLogin: 'all-users' as const, // Force smart wallet creation for ALL users
       // Use embedded signers for seamless auto-signing
       signerType: 'embedded' as const,
     },
   },
+  // Social and email login only - no external wallet connections
+  loginMethods: [
+    'email' as const, 
+    'google' as const, 
+    'twitter' as const, 
+    'discord' as const, 
+  ], // Social and email login only - smart wallets auto-created
   defaultChain: sepolia,
   supportedChains: [sepolia, mainnet],
 };

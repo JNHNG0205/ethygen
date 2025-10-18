@@ -1,5 +1,5 @@
-import WalletDashboard from "@/components/WalletDashboard";
+import Dashboard from "@/components/Dashboard";
 
 export default function Home() {
-  return <WalletDashboard />;
+  return <Dashboard />;
 }
