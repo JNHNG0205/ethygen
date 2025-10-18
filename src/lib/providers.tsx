@@ -5,7 +5,7 @@ import { PrivyProvider } from '@privy-io/react-auth';
 import { SmartWalletsProvider } from '@privy-io/react-auth/smart-wallets';
 // Make sure to import these from `@privy-io/wagmi`, not `wagmi`
 import { WagmiProvider, createConfig } from '@privy-io/wagmi';
-import { mainnet, sepolia } from 'viem/chains';
+import { sepolia, mainnet } from 'viem/chains';
 import { http } from 'wagmi';
 import { ReactNode } from 'react';
 
@@ -13,10 +13,10 @@ const queryClient = new QueryClient();
 
 // Create wagmi config
 const wagmiConfig = createConfig({
-  chains: [mainnet, sepolia],
+  chains: [sepolia, mainnet],
   transports: {
-    [mainnet.id]: http(),
     [sepolia.id]: http(),
+    [mainnet.id]: http(),
   },
 });
 
@@ -30,15 +30,27 @@ const privyConfig = {
   embeddedWallets: {
     ethereum: {
       createOnLogin: 'users-without-wallets' as const,
+      noPromptOnSignature: true,
+      noPromptOnTransaction: true,
+      noPromptOnTransactionReceipt: true,
     },
   },
-  defaultChain: mainnet,
-  supportedChains: [mainnet, sepolia],
+  // Enable smart wallets with embedded signers for auto-signing
+  smartWallets: {
+    ethereum: {
+      createOnLogin: 'users-without-wallets' as const,
+      // Use embedded signers for seamless auto-signing
+      signerType: 'embedded' as const,
+    },
+  },
+  defaultChain: sepolia,
+  supportedChains: [sepolia, mainnet],
 };
 
 export default function Providers({ children }: { children: ReactNode }) {
+  
   return (
-    <PrivyProvider appId="your-privy-app-id" config={privyConfig}>
+    <PrivyProvider appId="cmgn8elln0043jv0dahs16sm1" config={privyConfig}>
       <QueryClientProvider client={queryClient}>
         <SmartWalletsProvider>
           <WagmiProvider config={wagmiConfig}>{children}</WagmiProvider>

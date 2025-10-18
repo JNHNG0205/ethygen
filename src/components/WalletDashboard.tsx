@@ -5,6 +5,12 @@ import { useWallets } from '@privy-io/react-auth';
 import { useSetActiveWallet } from '@privy-io/wagmi';
 import { useAccount, useBalance, useChainId } from 'wagmi';
 import { useState } from 'react';
+import GaslessTransactionTest from './GaslessTransactionTest';
+import BatchTransactionTest from './BatchTransactionTest';
+import ChainSelector from './ChainSelector';
+import WalletFunding from './WalletFunding';
+import WalletCreation from './WalletCreation';
+import Navbar from './Navbar';
 
 export default function WalletDashboard() {
   const { ready, authenticated, login, logout } = usePrivy();
@@ -17,15 +23,6 @@ export default function WalletDashboard() {
   const chainId = useChainId();
   const [selectedWallet, setSelectedWallet] = useState<string>('');
 
-  const handleConnect = async () => {
-    if (!authenticated) {
-      await login();
-    }
-  };
-
-  const handleDisconnect = async () => {
-    await logout();
-  };
 
   const handleSetActiveWallet = async (walletAddress: string) => {
     const wallet = wallets.find((w) => w.address === walletAddress);
@@ -47,54 +44,18 @@ export default function WalletDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      
+      <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Wallet Dashboard
           </h1>
           <p className="text-gray-600">
-            Connect and manage your smart wallets with Privy
+            Manage your smart wallets and test gasless transactions
           </p>
-        </div>
-
-        {/* Connection Status */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                Connection Status
-              </h2>
-              <div className="flex items-center space-x-4">
-                <div
-                  className={`w-3 h-3 rounded-full ${
-                    isConnected ? 'bg-green-500' : 'bg-red-500'
-                  }`}
-                ></div>
-                <span className="text-gray-700">
-                  {isConnected ? 'Connected' : 'Not Connected'}
-                </span>
-              </div>
-            </div>
-            <div className="flex space-x-4">
-              {!authenticated ? (
-                <button
-                  onClick={handleConnect}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Connect Wallet
-                </button>
-              ) : (
-                <button
-                  onClick={handleDisconnect}
-                  className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors"
-                >
-                  Disconnect
-                </button>
-              )}
-            </div>
-          </div>
         </div>
 
         {/* Active Wallet Info */}
@@ -185,6 +146,41 @@ export default function WalletDashboard() {
           </div>
         )}
 
+        {/* Network Configuration */}
+        {authenticated && (
+          <div className="mt-8">
+            <ChainSelector />
+          </div>
+        )}
+
+        {/* Wallet Creation */}
+        {authenticated && (
+          <div className="mt-8">
+            <WalletCreation />
+          </div>
+        )}
+
+        {/* Wallet Funding */}
+        {authenticated && (
+          <div className="mt-8">
+            <WalletFunding />
+          </div>
+        )}
+
+        {/* Gasless Transaction Test */}
+        {authenticated && (
+          <div className="mt-8">
+            <GaslessTransactionTest />
+          </div>
+        )}
+
+        {/* Batch Transaction Test */}
+        {authenticated && (
+          <div className="mt-8">
+            <BatchTransactionTest />
+          </div>
+        )}
+
         {/* Smart Wallet Features */}
         {authenticated && (
           <div className="bg-white rounded-lg shadow-sm p-6 mt-8">
@@ -192,7 +188,7 @@ export default function WalletDashboard() {
               Smart Wallet Features
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="p-4 border border-gray-200 rounded-lg">
+              <div key="account-abstraction" className="p-4 border border-gray-200 rounded-lg">
                 <h3 className="font-medium text-gray-900 mb-2">
                   Account Abstraction
                 </h3>
@@ -200,7 +196,7 @@ export default function WalletDashboard() {
                   Enjoy gasless transactions and batch operations
                 </p>
               </div>
-              <div className="p-4 border border-gray-200 rounded-lg">
+              <div key="social-recovery" className="p-4 border border-gray-200 rounded-lg">
                 <h3 className="font-medium text-gray-900 mb-2">
                   Social Recovery
                 </h3>
@@ -208,7 +204,7 @@ export default function WalletDashboard() {
                   Recover your wallet using social connections
                 </p>
               </div>
-              <div className="p-4 border border-gray-200 rounded-lg">
+              <div key="multi-chain" className="p-4 border border-gray-200 rounded-lg">
                 <h3 className="font-medium text-gray-900 mb-2">
                   Multi-Chain Support
                 </h3>
