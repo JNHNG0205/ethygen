@@ -43,7 +43,7 @@ export default function GaslessTransactionTest() {
             value: parseEther(amount),
           },
           {
-            address: wallets[0]?.address, // Use the first wallet
+            address: address, // Use the current connected wallet 
             sponsor: true, // Enable gas sponsorship
             uiOptions: {
               showWalletUIs: false, // Hide all confirmation modals for auto-signing
@@ -61,7 +61,7 @@ export default function GaslessTransactionTest() {
             value: parseEther(amount),
           },
           {
-            address: wallets[0]?.address,
+            address: address, // Use the current connected wallet 
             sponsor: false, // Disable gas sponsorship
             uiOptions: {
               showWalletUIs: false, // Still hide confirmation modals
