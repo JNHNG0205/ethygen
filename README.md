@@ -36,37 +36,56 @@
 
 ### **Deposit Flow**
 
-1. **User deposits assets** (ETH, USDC, etc.) into their **Privy Smart Wallet**.
-2. **Avail Nexus** aggregates all balances from multiple EVM chains and displays them as a **unified USDC balance**.
-3. The user **bridges USDC → Base chain** and swaps USDC → **USDe**, stored inside the **Vault Contract**.
-4. The **Vault** stakes USDe through the **Yield Engine**, minting **sUSDe** to represent staked positions.
-5. The user can then **swap sUSDe → yUSDe** (margin token) at a **0.8:1 ratio**, which is used for **perpetual trading**.
+1. **User deposits assets** (ETH, USDC, etc.) into their **Privy Smart Wallet**.  
+2. **Avail Nexus** aggregates balances across EVM chains and displays them as a **unified USDC balance**.  
+3. The user **bridges USDC → Base** and swaps to **USDe**, stored in the **Vault Contract**.  
+4. The **Vault** stakes the USDe in the **Yield Engine**, receiving **sUSDe**.  
+5. The user can then **mint yUSDe (margin token)** at a **0.8:1 ratio**, which is **backed by sUSDe**.  
+6. **Even if unused in trading**, yUSDe continues to **earn yield** because its underlying sUSDe remains staked in the vault.  
+
+---
+
+### **Trading Flow**
+
+1. The **Perp DEX** uses **yUSDe** as collateral for margin trading.  
+2. Trades are executed on **Base Sepolia**, powered by **Pyth price feeds**.  
+3. Gains or losses are reflected in the **yUSDe balance**, not affecting the underlying yield stream of untraded funds.
 
 ---
 
 ### **Withdraw Flow**
 
-1. When the **user closes a trade**, they receive **yUSDe** (with profits or losses reflected in its value).
-2. The user can **redeem yUSDe → sUSDe** through the vault.
-3. The vault **unstakes sUSDe → USDe**, returning the user’s yield-adjusted balance.
-4. The user **swaps USDe → Base USDC**, completing the withdrawal process.
+1. When users close trades, their **yUSDe balance (profit/loss adjusted)** is updated.  
+2. They can **redeem yUSDe → sUSDe** through the vault.  
+3. The vault **unstakes sUSDe → USDe**, returning yield-adjusted value.  
+4. Finally, the user **swaps USDe → Base USDC** for withdrawal.
 
 ---
 
 ## 🧠 Example Scenarios
 
-### **Winning Trade**
+### **Scenario 1: Idle Funds (No Trading)**
 
-* User opens a long position with 80 yUSDe margin.
-* The market moves favorably → profit added to vault’s balance.
-* User closes trade and receives more yUSDe (reflecting gains).
-* They redeem yUSDe → sUSDe → USDe → Base USDC.
+* User mints **100 yUSDe** but does not open any trades.  
+* yUSDe remains backed by 125 sUSDe (at 0.8:1 mint ratio).  
+* Yield continues accruing via the **sUSDe staking position**.  
+* Over time, user’s vault balance increases without any active trading.
 
-### **Losing Trade**
+---
 
-* User’s position moves against them → margin loss occurs.
-* The corresponding portion of **sUSDe** in the vault is burned to cover the loss.
-* User receives reduced yUSDe upon trade closure → redeems to smaller USDe amount.
+### **Scenario 2: Winning Trade**
+
+* User opens a 10x long position using 80 yUSDe.  
+* Market moves favorably → profit reflected in user’s yUSDe balance.  
+* Upon closing the trade, user redeems yUSDe → sUSDe → USDe, receiving both profit + accrued yield.
+
+---
+
+### **Scenario 3: Losing Trade**
+
+* User’s trade moves against them → margin loss occurs.  
+* The corresponding amount of sUSDe is **burned** to cover losses.  
+* Remaining sUSDe continues to earn yield for the user.  
 
 ---
 
