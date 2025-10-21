@@ -4,32 +4,33 @@ import { Card } from "@/components/ui/card"
 import { TrendingUp, Wallet, Lock, Zap } from "lucide-react"
 
 export function VaultOverview() {
+  // Empty state for fresh users
   const stats = [
     {
       label: "Total Balance",
-      value: "$12,450.32",
-      change: "+$245.67 (2.01%)",
+      value: "$0.00",
+      change: "$0.00 (0.00%)",
       icon: Wallet,
-      positive: true,
+      positive: false,
     },
     {
       label: "Available Margin",
-      value: "$8,234.50",
-      subtitle: "Ready to trade",
+      value: "$0.00",
+      subtitle: "Deposit to start trading",
       icon: Zap,
     },
     {
       label: "In Positions",
-      value: "$4,215.82",
-      subtitle: "3 active positions",
+      value: "$0.00",
+      subtitle: "0 active positions",
       icon: Lock,
     },
     {
       label: "Total PnL (24h)",
-      value: "+$156.23",
-      change: "+1.27%",
+      value: "$0.00",
+      change: "0.00%",
       icon: TrendingUp,
-      positive: true,
+      positive: false,
     },
   ]
 

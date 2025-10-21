@@ -8,16 +8,37 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowDownToLine, ArrowUpFromLine, Info } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { useSmartWallet } from "@/hooks/use-smart-wallet"
+import { usePrivy } from "@privy-io/react-auth"
+import { parseAbi, encodeFunctionData } from "viem"
 
+// TODO: Replace with your actual vault contract address and ABI
+const VAULT_ADDRESS = "0xYourVaultAddressHere"
+const VAULT_ABI = [
+  "function mintUSDe(uint256 amount)"
+]
 export function VaultActions() {
   const [depositAmount, setDepositAmount] = useState("")
   const [withdrawAmount, setWithdrawAmount] = useState("")
   const { toast } = useToast()
 
-  const walletBalance = 15234.67
-  const vaultBalance = 8234.5
+  // Fresh user state - zero balances
+  const walletBalance = 0
+  const vaultBalance = 0
+
+  const { executeGaslessTx } = useSmartWallet()
+  const { authenticated, login } = usePrivy()
 
   const handleDeposit = () => {
+    if (!authenticated) {
+      toast({
+        title: "Connect Wallet",
+        description: "Please connect your Privy wallet to deposit.",
+        variant: "destructive",
+      })
+      login()
+      return
+    }
     if (!depositAmount || Number.parseFloat(depositAmount) <= 0) {
       toast({
         title: "Invalid Amount",
@@ -26,12 +47,46 @@ export function VaultActions() {
       })
       return
     }
-
     toast({
       title: "Deposit Successful",
       description: `Deposited ${depositAmount} yUSDe to vault`,
     })
     setDepositAmount("")
+  }
+
+  const handleDepositGasless = async () => {
+    if (!authenticated) {
+      toast({
+        title: "Connect Wallet",
+        description: "Please connect your Privy wallet to deposit.",
+        variant: "destructive",
+      })
+      login()
+      return
+    }
+    if (!depositAmount || Number.parseFloat(depositAmount) <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid deposit amount",
+        variant: "destructive",
+      })
+      return
+    }
+    try {
+      const calldata = encodeFunctionData({
+        abi: parseAbi(VAULT_ABI),
+        functionName: "mintUSDe",
+        args: [BigInt(Math.floor(Number(depositAmount) * 1e18))], // assumes 18 decimals
+      })
+      await executeGaslessTx({
+        to: VAULT_ADDRESS,
+        data: calldata,
+        value: 0n,
+      })
+      setDepositAmount("")
+    } catch (err) {
+      // toast handled in hook
+    }
   }
 
   const handleWithdraw = () => {
@@ -112,9 +167,17 @@ export function VaultActions() {
 
           <Button
             onClick={handleDeposit}
-            className="w-full h-11 bg-primary text-black hover:bg-primary/90 font-semibold"
+            className="w-full h-11 bg-primary text-black hover:bg-primary/90 font-semibold mb-2"
+            disabled={!authenticated || !depositAmount || Number.parseFloat(depositAmount) <= 0}
           >
             Deposit to Vault
+          </Button>
+          <Button
+            onClick={handleDepositGasless}
+            className="w-full h-11 bg-cyan-400 text-black hover:bg-cyan-300 font-semibold"
+            disabled={!authenticated || !depositAmount || Number.parseFloat(depositAmount) <= 0}
+          >
+            Deposit Gasless
           </Button>
         </TabsContent>
 

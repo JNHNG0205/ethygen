@@ -34,15 +34,16 @@ export default function PortfolioPage() {
   const [chartView, setChartView] = useState<"account" | "pnl">("account")
   const [timeframe, setTimeframe] = useState<"24H" | "7D" | "14D" | "30D" | "all">("7D")
 
-  const totalEquity = 12847.32
-  const unrealizedPnL = 847.32
-  const realizedPnL = 1234.56
-  const totalVolume = 45678.9
-  const marginUsed = 3200.0
-  const availableMargin = 9647.32
-  const winRate = 68.5
-  const totalTrades = 127
-  const fundingPaid = -45.23
+  // Fresh user state - all zeros
+  const totalEquity = 0
+  const unrealizedPnL = 0
+  const realizedPnL = 0
+  const totalVolume = 0
+  const marginUsed = 0
+  const availableMargin = 0
+  const winRate = 0
+  const totalTrades = 0
+  const fundingPaid = 0
 
   return (
     <div className="h-screen w-screen bg-black flex flex-col overflow-hidden">

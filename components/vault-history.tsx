@@ -12,29 +12,8 @@ interface Transaction {
 }
 
 export function VaultHistory() {
-  const transactions: Transaction[] = [
-    {
-      id: "1",
-      type: "deposit",
-      amount: 5000,
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-      txHash: "0x1234...5678",
-    },
-    {
-      id: "2",
-      type: "withdraw",
-      amount: 1500,
-      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
-      txHash: "0xabcd...efgh",
-    },
-    {
-      id: "3",
-      type: "deposit",
-      amount: 3000,
-      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-      txHash: "0x9876...5432",
-    },
-  ]
+  // Empty state - no dummy data for fresh users
+  const transactions: Transaction[] = []
 
   const formatTime = (date: Date) => {
     const now = new Date()
@@ -51,8 +30,19 @@ export function VaultHistory() {
     <Card className="bg-card border-border p-6">
       <h3 className="text-lg font-semibold text-foreground mb-4">Recent Transactions</h3>
 
-      <div className="space-y-3">
-        {transactions.map((tx) => (
+      {transactions.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="w-14 h-14 rounded-full bg-muted/20 flex items-center justify-center mb-3">
+            <ArrowDownToLine className="w-7 h-7 text-muted-foreground" />
+          </div>
+          <h4 className="text-base font-semibold text-foreground mb-1">No Transactions Yet</h4>
+          <p className="text-sm text-muted-foreground max-w-sm">
+            Your deposit and withdrawal history will appear here.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {transactions.map((tx) => (
           <div
             key={tx.id}
             className="flex items-center justify-between p-3 bg-background rounded-md border border-border"
@@ -84,7 +74,8 @@ export function VaultHistory() {
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      )}
     </Card>
   )
 }

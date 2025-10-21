@@ -22,47 +22,8 @@ interface Position {
 export function ActivePositions() {
   const { toast } = useToast()
 
-  const positions: Position[] = [
-    {
-      id: "1",
-      asset: "ETH/USDC",
-      side: "long",
-      entryPrice: 2420.5,
-      currentPrice: 2450.32,
-      size: 24205,
-      leverage: 10,
-      margin: 2420.5,
-      pnl: 298.2,
-      pnlPercent: 12.32,
-      liquidationPrice: 2178.45,
-    },
-    {
-      id: "2",
-      asset: "BTC/USDC",
-      side: "short",
-      entryPrice: 42500,
-      currentPrice: 42350,
-      size: 21250,
-      leverage: 5,
-      margin: 4250,
-      pnl: 150,
-      pnlPercent: 3.53,
-      liquidationPrice: 44625,
-    },
-    {
-      id: "3",
-      asset: "SOL/USDC",
-      side: "long",
-      entryPrice: 98.5,
-      currentPrice: 96.2,
-      size: 9850,
-      leverage: 10,
-      margin: 985,
-      pnl: -230,
-      pnlPercent: -23.35,
-      liquidationPrice: 88.65,
-    },
-  ]
+  // Empty state - no dummy data for fresh users
+  const positions: Position[] = []
 
   const handleClosePosition = (position: Position) => {
     toast({
@@ -78,8 +39,19 @@ export function ActivePositions() {
         <div className="text-sm text-muted-foreground">{positions.length} open</div>
       </div>
 
-      <div className="space-y-4">
-        {positions.map((position) => {
+      {positions.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="w-16 h-16 rounded-full bg-muted/20 flex items-center justify-center mb-4">
+            <TrendingUp className="w-8 h-8 text-muted-foreground" />
+          </div>
+          <h3 className="text-lg font-semibold text-foreground mb-2">No Active Positions</h3>
+          <p className="text-sm text-muted-foreground max-w-md">
+            You don't have any open positions yet. Start trading to see your positions here.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {positions.map((position) => {
           const isProfitable = position.pnl >= 0
 
           return (
@@ -164,7 +136,8 @@ export function ActivePositions() {
             </div>
           )
         })}
-      </div>
+        </div>
+      )}
     </Card>
   )
 }

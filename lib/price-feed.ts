@@ -33,51 +33,33 @@ export class PriceFeedService {
     return PriceFeedService.instance
   }
 
-  private startPriceUpdates() {
-    // Initialize with base prices
-    this.prices.set("ETH/USDC", {
-      price: 2450.32,
-      confidence: 0.5,
-      timestamp: Date.now(),
-      change24h: 2.45,
-      volume24h: 45200000,
-    })
-    this.prices.set("BTC/USDC", {
-      price: 42350.0,
-      confidence: 1.2,
-      timestamp: Date.now(),
-      change24h: -0.85,
-      volume24h: 892000000,
-    })
-    this.prices.set("SOL/USDC", {
-      price: 96.2,
-      confidence: 0.1,
-      timestamp: Date.now(),
-      change24h: 5.67,
-      volume24h: 12300000,
-    })
-    this.prices.set("ARB/USDC", {
-      price: 1.72,
-      confidence: 0.01,
-      timestamp: Date.now(),
-      change24h: -1.23,
-      volume24h: 3400000,
-    })
+  private async fetchPythPrice(asset: string): Promise<void> {
+    const feedId = PRICE_FEED_IDS[asset as keyof typeof PRICE_FEED_IDS]
+    if (!feedId) return
 
-    // Simulate real-time price updates
-    this.updateInterval = setInterval(() => {
-      this.prices.forEach((priceData, asset) => {
-        // Simulate price movement with volatility
-        const volatility = priceData.price * 0.001 // 0.1% volatility
-        const change = (Math.random() - 0.5) * volatility * 2
-        const newPrice = priceData.price + change
+    try {
+      const response = await fetch(
+        `https://hermes.pyth.network/v2/updates/price/latest?ids[]=${feedId}`
+      )
+      const data = await response.json()
+      
+      if (data.parsed && data.parsed[0]) {
+        const priceData = data.parsed[0].price
+        const price = Number(priceData.price) * Math.pow(10, priceData.expo)
+        const confidence = Number(priceData.conf) * Math.pow(10, priceData.expo)
+        
+        // Get previous price for 24h change calculation
+        const previousPrice = this.prices.get(asset)
+        const change24h = previousPrice 
+          ? ((price - previousPrice.price) / previousPrice.price) * 100 
+          : 0
 
         const updatedData: PriceData = {
-          price: Number.parseFloat(newPrice.toFixed(2)),
-          confidence: priceData.confidence,
+          price: Number(price.toFixed(2)),
+          confidence: Number(confidence.toFixed(2)),
           timestamp: Date.now(),
-          change24h: priceData.change24h + (Math.random() - 0.5) * 0.1,
-          volume24h: priceData.volume24h,
+          change24h: Number(change24h.toFixed(2)),
+          volume24h: previousPrice?.volume24h || 45200000, // Volume not available from Pyth, use default
         }
 
         this.prices.set(asset, updatedData)
@@ -87,8 +69,24 @@ export class PriceFeedService {
         if (subscribers) {
           subscribers.forEach((callback) => callback(updatedData))
         }
+      }
+    } catch (error) {
+      console.error(`Failed to fetch Pyth price for ${asset}:`, error)
+    }
+  }
+
+  private startPriceUpdates() {
+    // Fetch all prices immediately
+    Object.keys(PRICE_FEED_IDS).forEach(asset => {
+      this.fetchPythPrice(asset)
+    })
+
+    // Update prices every 3 seconds from Pyth Network
+    this.updateInterval = setInterval(() => {
+      Object.keys(PRICE_FEED_IDS).forEach(asset => {
+        this.fetchPythPrice(asset)
       })
-    }, 1000) // Update every second
+    }, 3000) // Update every 3 seconds
   }
 
   subscribe(asset: string, callback: (data: PriceData) => void): () => void {

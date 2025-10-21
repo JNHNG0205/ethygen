@@ -1,16 +1,32 @@
 "use client"
 
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Menu, Settings } from "lucide-react"
-import { WalletConnectButton } from "@/components/wallet-connect-button"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { usePrivy, useWallets } from "@privy-io/react-auth"
+import { motion } from "framer-motion"
+import { useState } from "react"
 
 export function TopNav() {
   const [selectedAsset, setSelectedAsset] = useState("ETH/USDC")
   const pathname = usePathname()
+  const { ready, authenticated, login, logout } = usePrivy()
+  const { wallets } = useWallets()
+
+  // Prefer embedded/smart wallet if present
+  const smartWallet = wallets.find((w) => w.walletClientType === "privy")
+  const address = smartWallet?.address
+  const [copied, setCopied] = useState(false)
+
+  const handleCopyAddress = () => {
+    if (address) {
+      navigator.clipboard.writeText(address)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    }
+  }
 
   const navLinks = [
     { href: "/", label: "Trade" },
@@ -75,7 +91,35 @@ export function TopNav() {
 
       {/* Right: Connect and Settings */}
       <div className="flex items-center gap-3">
-        <WalletConnectButton />
+        {!ready ? (
+          <div className="px-3 py-2 text-sm text-muted-foreground bg-card rounded-md">Loading...</div>
+        ) : authenticated ? (
+          <div className="flex items-center space-x-3">
+            {address && (
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className={`text-xs font-mono bg-[#0f0f10] px-3 py-1 rounded-full border border-[#1e1e1e] text-primary shadow-[0_0_8px_rgba(0,212,255,0.35)] transition cursor-pointer ${copied ? 'ring-2 ring-cyan-400' : ''}`}
+                title={copied ? 'Copied!' : address}
+                onClick={handleCopyAddress}
+                type="button"
+              >
+                {copied ? 'Copied!' : `${address.slice(0, 6)}...${address.slice(-4)}`}
+              </motion.button>
+            )}
+            <Button variant="ghost" onClick={logout} className="text-destructive hover:text-destructive/90">
+              Logout
+            </Button>
+          </div>
+        ) : (
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            onClick={login}
+            className="bg-primary text-black px-4 py-2 rounded-full font-semibold shadow-[0_0_12px_rgba(0,212,255,0.55)]"
+          >
+            Connect Privy
+          </motion.button>
+        )}
 
         <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
           <Settings className="w-5 h-5" />

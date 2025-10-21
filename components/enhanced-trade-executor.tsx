@@ -85,7 +85,17 @@ export function EnhancedTradeExecutor() {
         description: (
           <div className="space-y-1">
             <p>{result.message}</p>
-            <p className="text-xs font-mono text-muted-foreground">Tx: {result.txHash?.slice(0, 20)}...</p>
+            {result.txHash && (
+              <a
+                href={`https://sepolia.basescan.org/tx/${result.txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-mono text-primary hover:underline flex items-center gap-1"
+              >
+                Tx: {result.txHash.slice(0, 10)}...{result.txHash.slice(-8)}
+                <span className="text-[10px]">↗</span>
+              </a>
+            )}
           </div>
         ),
       })

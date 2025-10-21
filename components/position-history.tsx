@@ -17,44 +17,8 @@ interface HistoricalPosition {
 }
 
 export function PositionHistory() {
-  const history: HistoricalPosition[] = [
-    {
-      id: "1",
-      asset: "ETH/USDC",
-      side: "long",
-      entryPrice: 2380,
-      exitPrice: 2420.5,
-      size: 23800,
-      leverage: 10,
-      pnl: 405,
-      pnlPercent: 17.02,
-      closedAt: new Date(Date.now() - 3 * 60 * 60 * 1000),
-    },
-    {
-      id: "2",
-      asset: "BTC/USDC",
-      side: "short",
-      entryPrice: 43200,
-      exitPrice: 42500,
-      size: 21600,
-      leverage: 5,
-      pnl: 350,
-      pnlPercent: 8.1,
-      closedAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
-    },
-    {
-      id: "3",
-      asset: "ARB/USDC",
-      side: "long",
-      entryPrice: 1.85,
-      exitPrice: 1.72,
-      size: 9250,
-      leverage: 5,
-      pnl: -650,
-      pnlPercent: -35.14,
-      closedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-    },
-  ]
+  // Empty state - no dummy data for fresh users
+  const history: HistoricalPosition[] = []
 
   const formatTime = (date: Date) => {
     const now = new Date()
@@ -71,8 +35,19 @@ export function PositionHistory() {
     <Card className="bg-card border-border p-6">
       <h2 className="text-xl font-semibold text-foreground mb-6">Position History</h2>
 
-      <div className="space-y-3">
-        {history.map((position) => {
+      {history.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="w-16 h-16 rounded-full bg-muted/20 flex items-center justify-center mb-4">
+            <TrendingDown className="w-8 h-8 text-muted-foreground" />
+          </div>
+          <h3 className="text-lg font-semibold text-foreground mb-2">No Position History</h3>
+          <p className="text-sm text-muted-foreground max-w-md">
+            Your closed positions will appear here once you close your first trade.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {history.map((position) => {
           const isProfitable = position.pnl >= 0
 
           return (
@@ -120,7 +95,8 @@ export function PositionHistory() {
             </div>
           )
         })}
-      </div>
+        </div>
+      )}
     </Card>
   )
 }

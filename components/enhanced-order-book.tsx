@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { usePriceFeed } from "@/hooks/use-price-feed"
 
 interface OrderBookEntry {
   price: number
@@ -18,19 +19,26 @@ export function EnhancedOrderBook() {
   const [spreadPercent, setSpreadPercent] = useState(0)
   const [view, setView] = useState<OrderBookView>("all")
   const [maxTotal, setMaxTotal] = useState(0)
+  
+  // Use shared Pyth price feed
+  const { price: currentPrice } = usePriceFeed("ETH/USDC")
 
-  // Generate and update order book data
+  // Generate and update order book data based on current price
   useEffect(() => {
     const generateOrderBook = () => {
-      const basePrice = 2450.0
+      if (!currentPrice) return // Wait for price to load
+      
+      const basePrice = currentPrice
       const numOrders = 20
 
-      // Generate asks (sell orders)
+      // Generate asks (sell orders) - starting from slightly above current price
       const newAsks: OrderBookEntry[] = []
       let askTotal = 0
+      const spreadWidth = basePrice * 0.0002 // 0.02% spread from mid
       for (let i = 0; i < numOrders; i++) {
-        const price = basePrice + 0.5 + i * 0.5
-        const size = Math.random() * 5 + 0.5
+        const price = basePrice + spreadWidth + i * (basePrice * 0.0002) // 0.02% increments
+        // Larger orders further from current price (more realistic depth)
+        const size = (Math.random() * 3 + 0.5) * (1 + i * 0.1)
         askTotal += size
         newAsks.push({
           price: Number.parseFloat(price.toFixed(2)),
@@ -39,12 +47,12 @@ export function EnhancedOrderBook() {
         })
       }
 
-      // Generate bids (buy orders)
+      // Generate bids (buy orders) - starting from slightly below current price
       const newBids: OrderBookEntry[] = []
       let bidTotal = 0
       for (let i = 0; i < numOrders; i++) {
-        const price = basePrice - i * 0.5
-        const size = Math.random() * 5 + 0.5
+        const price = basePrice - spreadWidth - i * (basePrice * 0.0002)
+        const size = (Math.random() * 3 + 0.5) * (1 + i * 0.1)
         bidTotal += size
         newBids.push({
           price: Number.parseFloat(price.toFixed(2)),
@@ -69,13 +77,13 @@ export function EnhancedOrderBook() {
 
     generateOrderBook()
 
-    // Update order book every 1 second
+    // Update order book every 2 seconds (simulate order flow)
     const interval = setInterval(() => {
       generateOrderBook()
-    }, 1000)
+    }, 2000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [currentPrice]) // Regenerate when Pyth price updates
 
   const handlePriceClick = (price: number) => {
     // This would trigger the trade executor to populate with the clicked price
