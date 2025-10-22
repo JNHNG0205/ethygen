@@ -1,13 +1,15 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useMemo } from "react"
 import { TopNav } from "@/components/top-nav"
 import { BottomBar } from "@/components/bottom-bar"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Search, ExternalLink, TrendingUp, TrendingDown, Activity, DollarSign } from "lucide-react"
+import { useTradingEvents } from "@/hooks/use-trading-events"
+import { usePrivy } from "@privy-io/react-auth"
 
-interface Transaction {
+type TxRow = {
   hash: string
   type: "Long" | "Short" | "Close" | "Liquidation"
   pair: string
@@ -28,65 +30,41 @@ interface Stats {
 
 export default function ExplorerPage() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [transactions, setTransactions] = useState<Transaction[]>([])
-  const [stats, setStats] = useState<Stats>({
-    totalVolume24h: 0,
-    totalTrades24h: 0,
-    totalTraders24h: 0,
-    avgTradeSize: 0,
-  })
   const [filter, setFilter] = useState<"all" | "long" | "short" | "close" | "liquidation">("all")
+  const { user } = usePrivy()
+  const userAddress = (user as any)?.wallet?.address as string | undefined
+  const { events, loading } = useTradingEvents({ user: userAddress, limit: 100, refetchMs: 5000 })
 
-  // Generate mock transaction data
-  useEffect(() => {
-    const generateTransactions = () => {
-      const types: Transaction["type"][] = ["Long", "Short", "Close", "Liquidation"]
-      const pairs = ["ETH/USDC", "BTC/USDC", "SOL/USDC", "ARB/USDC"]
-      const statuses: Transaction["status"][] = ["Success", "Success", "Success", "Pending"]
+  // Map events to UI rows
+  const transactions: TxRow[] = useMemo(() => {
+    return events.map((e) => {
+      const priceNum = Number(e.price)
+      const sizeNum = Number(e.size)
+      const type = e.side?.toLowerCase() === "long" ? "Long" : e.side?.toLowerCase() === "short" ? "Short" : "Long"
+      return {
+        hash: e.transactionHash,
+        type,
+        pair: "ETH/USDC", // If your index includes pair/market, replace here
+        size: sizeNum,
+        price: priceNum,
+        timestamp: new Date(e.blockTimestamp).getTime(),
+        trader: e.user,
+        status: "Success" as const,
+        pnl: undefined,
+      }
+    })
+  }, [events])
 
-      const txs: Transaction[] = Array.from({ length: 50 }, (_, i) => {
-        const type = types[Math.floor(Math.random() * types.length)]
-        const pair = pairs[Math.floor(Math.random() * pairs.length)]
-        const size = Math.random() * 10 + 0.1
-        const price = pair.includes("ETH")
-          ? 3000 + Math.random() * 200
-          : pair.includes("BTC")
-            ? 65000 + Math.random() * 5000
-            : pair.includes("SOL")
-              ? 100 + Math.random() * 20
-              : 1.5 + Math.random() * 0.5
-
-        return {
-          hash: `0x${Math.random().toString(16).slice(2, 18)}...${Math.random().toString(16).slice(2, 6)}`,
-          type,
-          pair,
-          size: Number(size.toFixed(4)),
-          price: Number(price.toFixed(2)),
-          timestamp: Date.now() - Math.random() * 3600000,
-          trader: `0x${Math.random().toString(16).slice(2, 10)}...${Math.random().toString(16).slice(2, 6)}`,
-          pnl: type === "Close" ? (Math.random() - 0.5) * 1000 : undefined,
-          status: statuses[Math.floor(Math.random() * statuses.length)],
-        }
-      })
-
-      setTransactions(txs)
-
-      // Calculate stats
-      const volume = txs.reduce((acc, tx) => acc + tx.size * tx.price, 0)
-      const uniqueTraders = new Set(txs.map((tx) => tx.trader)).size
-
-      setStats({
-        totalVolume24h: volume,
-        totalTrades24h: txs.length,
-        totalTraders24h: uniqueTraders,
-        avgTradeSize: volume / txs.length,
-      })
+  const stats: Stats = useMemo(() => {
+    const volume = transactions.reduce((acc, tx) => acc + (tx.size || 0) * (tx.price || 0), 0)
+    const uniqueTraders = new Set(transactions.map((tx) => tx.trader?.toLowerCase())).size
+    return {
+      totalVolume24h: volume,
+      totalTrades24h: transactions.length,
+      totalTraders24h: uniqueTraders,
+      avgTradeSize: transactions.length ? volume / transactions.length : 0,
     }
-
-    generateTransactions()
-    const interval = setInterval(generateTransactions, 5000)
-    return () => clearInterval(interval)
-  }, [])
+  }, [transactions])
 
   const filteredTransactions = transactions.filter((tx) => {
     const matchesFilter = filter === "all" || tx.type.toLowerCase() === filter
@@ -230,11 +208,27 @@ export default function ExplorerPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredTransactions.map((tx, index) => (
+                {loading ? (
+                  <tr>
+                    <td colSpan={9} className="p-6 text-center text-muted-foreground">Loading indexed trades…</td>
+                  </tr>
+                ) : filteredTransactions.length === 0 ? (
+                  <tr>
+                    <td colSpan={9} className="p-6 text-center text-muted-foreground">No trades yet—start trading!</td>
+                  </tr>
+                ) : (
+                  filteredTransactions.map((tx, index) => (
                   <tr key={index} className="border-b border-border hover:bg-muted/30 transition-colors">
                     <td className="p-4">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-sm text-primary hover:underline cursor-pointer">{tx.hash}</span>
+                        <a
+                          href={`https://sepolia.basescan.org/tx/${tx.hash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-mono text-sm text-primary hover:underline"
+                        >
+                          {tx.hash.slice(0, 10)}...{tx.hash.slice(-8)}
+                        </a>
                         <ExternalLink className="w-3 h-3 text-muted-foreground" />
                       </div>
                     </td>
@@ -272,29 +266,15 @@ export default function ExplorerPage() {
                     </td>
                     <td className="p-4">
                       <span
-                        className={`inline-flex items-center gap-1 text-xs ${
-                          tx.status === "Success"
-                            ? "text-primary"
-                            : tx.status === "Pending"
-                              ? "text-yellow-500"
-                              : "text-destructive"
-                        }`}
+                        className={`inline-flex items-center gap-1 text-xs text-primary`}
                       >
-                        <span
-                          className={`w-1.5 h-1.5 rounded-full ${
-                            tx.status === "Success"
-                              ? "bg-primary"
-                              : tx.status === "Pending"
-                                ? "bg-yellow-500 animate-pulse"
-                                : "bg-destructive"
-                          }`}
-                        />
-                        {tx.status}
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                        Success
                       </span>
                     </td>
                     <td className="p-4 text-right text-sm text-muted-foreground">{formatTime(tx.timestamp)}</td>
                   </tr>
-                ))}
+                ))) }
               </tbody>
             </table>
           </div>

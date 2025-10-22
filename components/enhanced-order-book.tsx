@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { usePriceFeed } from "@/hooks/use-price-feed"
+import { useMarket } from "@/hooks/use-market"
 
 interface OrderBookEntry {
   price: number
@@ -20,8 +21,9 @@ export function EnhancedOrderBook() {
   const [view, setView] = useState<OrderBookView>("all")
   const [maxTotal, setMaxTotal] = useState(0)
   
+  const { asset: selectedAsset } = useMarket()
   // Use shared Pyth price feed
-  const { price: currentPrice } = usePriceFeed("ETH/USDC")
+  const { price: currentPrice } = usePriceFeed(selectedAsset)
 
   // Generate and update order book data based on current price
   useEffect(() => {
@@ -153,8 +155,8 @@ export function EnhancedOrderBook() {
 
       {/* Column Headers */}
       <div className="grid grid-cols-3 gap-2 px-3 py-2 text-xs text-muted-foreground border-b border-[#1e1e1e] font-mono">
-        <div className="text-left">Price (USDC)</div>
-        <div className="text-right">Size (ETH)</div>
+        <div className="text-left">Price ({selectedAsset.split("/")[1] || "yUSDe"})</div>
+        <div className="text-right">Size ({selectedAsset.split("/")[0]})</div>
         <div className="text-right">Total</div>
       </div>
 

@@ -2,23 +2,10 @@
 
 import { Card } from "@/components/ui/card"
 import { TrendingUp, TrendingDown } from "lucide-react"
-
-interface HistoricalPosition {
-  id: string
-  asset: string
-  side: "long" | "short"
-  entryPrice: number
-  exitPrice: number
-  size: number
-  leverage: number
-  pnl: number
-  pnlPercent: number
-  closedAt: Date
-}
+import { usePositions } from "@/hooks/use-positions"
 
 export function PositionHistory() {
-  // Empty state - no dummy data for fresh users
-  const history: HistoricalPosition[] = []
+  const { history } = usePositions()
 
   const formatTime = (date: Date) => {
     const now = new Date()

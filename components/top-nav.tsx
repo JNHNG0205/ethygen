@@ -8,9 +8,10 @@ import { usePathname } from "next/navigation"
 import { usePrivy, useWallets } from "@privy-io/react-auth"
 import { motion } from "framer-motion"
 import { useState } from "react"
+import { useMarket } from "@/hooks/use-market"
 
 export function TopNav() {
-  const [selectedAsset, setSelectedAsset] = useState("ETH/USDC")
+  const { asset: selectedAsset, setAsset: setSelectedAsset } = useMarket()
   const pathname = usePathname()
   const { ready, authenticated, login, logout } = usePrivy()
   const { wallets } = useWallets()
@@ -71,17 +72,11 @@ export function TopNav() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-popover border-border">
-              <SelectItem value="ETH/USDC" className="font-mono">
-                ETH/USDC
+              <SelectItem value="ETH/yUSDe" className="font-mono">
+                ETH/yUSDe
               </SelectItem>
-              <SelectItem value="BTC/USDC" className="font-mono">
-                BTC/USDC
-              </SelectItem>
-              <SelectItem value="SOL/USDC" className="font-mono">
-                SOL/USDC
-              </SelectItem>
-              <SelectItem value="ARB/USDC" className="font-mono">
-                ARB/USDC
+              <SelectItem value="BTC/yUSDe" className="font-mono">
+                BTC/yUSDe
               </SelectItem>
             </SelectContent>
           </Select>

@@ -1,11 +1,17 @@
 "use client"
 
 // Pyth Network price feed IDs for different assets
-export const PRICE_FEED_IDS = {
+// yUSDe pairs mirror USDC prices (1:1 peg assumption)
+export const PRICE_FEED_IDS: Record<string, string> = {
   "ETH/USDC": "0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace",
   "BTC/USDC": "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43",
   "SOL/USDC": "0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
   "ARB/USDC": "0x3fa4252848f9f0a1480be62745a4629d9eb1322aebab8a791e344b3b9c1adcf5",
+  // yUSDe pairs - mirror USDC prices
+  "ETH/yUSDe": "0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace",
+  "BTC/yUSDe": "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43",
+  "SOL/yUSDe": "0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+  "ARB/yUSDe": "0x3fa4252848f9f0a1480be62745a4629d9eb1322aebab8a791e344b3b9c1adcf5",
 }
 
 export interface PriceData {

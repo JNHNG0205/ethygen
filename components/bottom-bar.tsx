@@ -2,30 +2,54 @@
 
 import { Button } from "@/components/ui/button"
 import { TrendingUp, TrendingDown } from "lucide-react"
+import { useMarket } from "@/hooks/use-market"
+import { usePriceFeed } from "@/hooks/use-price-feed"
+import { usePositions } from "@/hooks/use-positions"
+import { usePrivy } from "@privy-io/react-auth"
+import { useRouter } from "next/navigation"
 
 export function BottomBar() {
-  const totalEquity = 12450.32
-  const pnl = 245.67
-  const isProfitable = pnl > 0
-  const availableMargin = 8234.5
-  const openPositions = 3
-  const fundingRate = -0.0023
+  const { asset } = useMarket()
+  const { price, change24h, isConnected } = usePriceFeed(asset)
+  const { activePositions } = usePositions()
+  const { authenticated, login } = usePrivy()
+  const router = useRouter()
+
+  // Fresh user defaults
+  const totalEquity = 0
+  const availableMargin = 0
+  const openPositions = activePositions.length
+  const fundingRate = 0 // Placeholder; source from venue when available
+
+  const handleDeposit = () => {
+    if (!authenticated) {
+      login()
+      return
+    }
+    router.push("/vault")
+  }
+
+  const hasPrice = typeof price === "number" && !Number.isNaN(price)
+  const isPositive = (change24h || 0) >= 0
 
   return (
     <div className="fixed bottom-0 left-0 right-0 h-[80px] bg-black border-t border-[#1e1e1e] z-40 flex items-center justify-between px-6">
-      {/* Left: Equity and Margin */}
+      {/* Left: Market Price (Pyth) and Margin */}
       <div className="flex items-center gap-8">
         <div>
-          <div className="text-xs text-muted-foreground mb-1">Total Equity</div>
-          <div className={`text-xl font-mono font-bold ${isProfitable ? "text-primary" : "text-destructive"}`}>
-            ${totalEquity.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-          </div>
-          <div
-            className={`text-xs font-mono flex items-center gap-1 ${isProfitable ? "text-primary" : "text-destructive"}`}
-          >
-            {isProfitable ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-            {isProfitable ? "+" : ""}
-            {pnl.toFixed(2)} ({((pnl / totalEquity) * 100).toFixed(2)}%)
+          <div className="text-xs text-muted-foreground mb-1">{asset} Price</div>
+          <div className="flex items-baseline gap-2">
+            <div className="text-xl font-mono font-bold text-foreground">
+              {hasPrice ? `$${price!.toLocaleString()}` : <span className="animate-pulse text-muted-foreground">Loading…</span>}
+            </div>
+            {hasPrice && (
+              <div className={`text-xs font-mono flex items-center gap-1 ${isPositive ? "text-primary" : "text-destructive"}`}>
+                {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                {isPositive ? "+" : ""}
+                {(change24h ?? 0).toFixed(2)}%
+                {isConnected && <span className="ml-1 w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />}
+              </div>
+            )}
           </div>
         </div>
 
@@ -58,7 +82,9 @@ export function BottomBar() {
 
         <div className="h-12 w-px bg-border" />
 
-        <Button className="bg-primary text-black hover:bg-primary/90 font-semibold neon-glow">Deposit</Button>
+        <Button onClick={handleDeposit} className="bg-primary text-black hover:bg-primary/90 font-semibold neon-glow">
+          {authenticated ? "Deposit" : "Connect to Deposit"}
+        </Button>
       </div>
     </div>
   )

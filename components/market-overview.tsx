@@ -4,10 +4,10 @@ import { Card } from "@/components/ui/card"
 import { PriceTicker } from "@/components/price-ticker"
 
 const MARKETS = [
-  { asset: "ETH/USDC", name: "Ethereum" },
-  { asset: "BTC/USDC", name: "Bitcoin" },
-  { asset: "SOL/USDC", name: "Solana" },
-  { asset: "ARB/USDC", name: "Arbitrum" },
+  { asset: "ETH/yUSDe", name: "Ethereum" },
+  { asset: "BTC/yUSDe", name: "Bitcoin" },
+  { asset: "SOL/yUSDe", name: "Solana" },
+  { asset: "ARB/yUSDe", name: "Arbitrum" },
 ]
 
 export function MarketOverview() {

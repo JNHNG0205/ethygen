@@ -11,6 +11,8 @@ import { AlertCircle, Info, Loader2, CheckCircle2 } from "lucide-react"
 import { useGaslessTrading } from "@/hooks/use-gasless-trading"
 import { useToast } from "@/hooks/use-toast"
 import { usePriceFeed } from "@/hooks/use-price-feed"
+import { useMarket } from "@/hooks/use-market"
+import { usePositions } from "@/hooks/use-positions"
 
 export function EnhancedTradeExecutor() {
   const [side, setSide] = useState<"long" | "short">("long")
@@ -25,7 +27,9 @@ export function EnhancedTradeExecutor() {
   const { executeTrade, isExecuting, authenticated } = useGaslessTrading()
   const { toast } = useToast()
 
-  const { price: currentPrice } = usePriceFeed("ETH/USDC")
+  const { asset: selectedAsset } = useMarket()
+  const { price: currentPrice, isConnected } = usePriceFeed(selectedAsset)
+  const { openPosition } = usePositions()
 
   // Fresh user: no available balance until deposit
   const availableBalance = 0
@@ -81,6 +85,16 @@ export function EnhancedTradeExecutor() {
     })
 
     if (result.success) {
+      // Record the opened position locally for UI display (uses selected asset)
+      if (currentPrice) {
+        openPosition({
+          asset: selectedAsset,
+          side,
+          margin: Number.parseFloat(margin) || 0,
+          leverage: leverage[0],
+          entryPrice: currentPrice,
+        })
+      }
       toast({
         title: "Trade Executed",
         description: (
@@ -116,10 +130,30 @@ export function EnhancedTradeExecutor() {
   return (
     <div className="h-full bg-black flex flex-col">
       <div className="p-3 border-b border-[#1e1e1e]">
-        <h3 className="text-sm font-semibold text-foreground">Trade</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-foreground">Trade</h3>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono text-muted-foreground">{selectedAsset}</span>
+            {isConnected && <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" title="Live Pyth price" />}
+          </div>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {/* Current Market Price Display */}
+        <div className="p-3 bg-card rounded-lg border border-border">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs text-muted-foreground">Market Price</span>
+            <span className="text-xs font-mono text-muted-foreground">{selectedAsset}</span>
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-mono font-bold text-foreground">
+              {currentPrice ? `$${currentPrice.toLocaleString()}` : <span className="animate-pulse text-muted-foreground">Loading...</span>}
+            </span>
+            {isConnected && <div className="w-2 h-2 rounded-full bg-primary animate-pulse" title="Live Pyth feed" />}
+          </div>
+        </div>
+
         {/* Long/Short Tabs */}
         <Tabs value={side} onValueChange={(v) => setSide(v as "long" | "short")}>
           <TabsList className="grid w-full grid-cols-2 bg-card h-10">
@@ -164,7 +198,7 @@ export function EnhancedTradeExecutor() {
         {/* Limit Price */}
         {orderType === "limit" && (
           <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Limit Price (USDC)</Label>
+            <Label className="text-xs text-muted-foreground">Limit Price ({selectedAsset.split("/")[1] || "yUSDe"})</Label>
             <Input
               type="number"
               placeholder={currentPrice?.toFixed(2) || "0.00"}
