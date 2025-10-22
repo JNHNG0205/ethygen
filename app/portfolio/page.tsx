@@ -41,6 +41,7 @@ export default function PortfolioPage() {
   const totalVolume = 0
   const marginUsed = 0
   const availableMargin = 0
+  const usagePercent = totalEquity > 0 ? (marginUsed / totalEquity) * 100 : 0
   const winRate = 0
   const totalTrades = 0
   const fundingPaid = 0
@@ -146,14 +147,12 @@ export default function PortfolioPage() {
                   <div className="pt-2 border-t border-border">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs text-muted-foreground">Usage</span>
-                      <span className="text-xs font-mono text-foreground">
-                        {((marginUsed / totalEquity) * 100).toFixed(1)}%
-                      </span>
+                      <span className="text-xs font-mono text-foreground">{usagePercent.toFixed(1)}%</span>
                     </div>
                     <div className="h-2 bg-[#1e1e1e] rounded-full overflow-hidden">
                       <div
                         className="h-full bg-primary transition-all duration-300"
-                        style={{ width: `${(marginUsed / totalEquity) * 100}%` }}
+                        style={{ width: `${usagePercent}%` }}
                       />
                     </div>
                   </div>
@@ -330,24 +329,24 @@ export default function PortfolioPage() {
               <div className="space-y-4">
                 <div>
                   <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wider">Balance</p>
-                  <p className="text-2xl font-bold text-foreground">$8,234.50</p>
+                  <p className="text-2xl font-bold text-foreground">$0.00</p>
                 </div>
 
                 <div className="pt-4 border-t border-border space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Margin Used</span>
-                    <span className="text-sm font-mono text-foreground">$3,200.00</span>
+                    <span className="text-sm font-mono text-foreground">$0.00</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Unrealized PnL</span>
                     <div className="flex items-center gap-1">
                       <TrendingUp className="w-3 h-3 text-primary" />
-                      <span className="text-sm font-mono text-primary">+$847.32</span>
+                      <span className="text-sm font-mono text-primary">+$0.00</span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Open Positions</span>
-                    <span className="text-sm font-mono text-foreground">3</span>
+                    <span className="text-sm font-mono text-foreground">0</span>
                   </div>
                 </div>
               </div>
@@ -369,21 +368,21 @@ export default function PortfolioPage() {
               <div className="space-y-4">
                 <div>
                   <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wider">Balance</p>
-                  <p className="text-2xl font-bold text-foreground">$2,456.78</p>
+                  <p className="text-2xl font-bold text-foreground">$0.00</p>
                 </div>
 
                 <div className="pt-4 border-t border-border space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Available</span>
-                    <span className="text-sm font-mono text-primary">$2,156.78</span>
+                    <span className="text-sm font-mono text-primary">$0.00</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">In Orders</span>
-                    <span className="text-sm font-mono text-foreground">$300.00</span>
+                    <span className="text-sm font-mono text-foreground">$0.00</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Assets</span>
-                    <span className="text-sm font-mono text-foreground">5</span>
+                    <span className="text-sm font-mono text-foreground">0</span>
                   </div>
                 </div>
               </div>
@@ -405,24 +404,24 @@ export default function PortfolioPage() {
               <div className="space-y-4">
                 <div>
                   <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wider">Balance</p>
-                  <p className="text-2xl font-bold text-foreground">$2,156.04</p>
+                  <p className="text-2xl font-bold text-foreground">$0.00</p>
                 </div>
 
                 <div className="pt-4 border-t border-border space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Principal</span>
-                    <span className="text-sm font-mono text-foreground">$2,000.00</span>
+                    <span className="text-sm font-mono text-foreground">$0.00</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Yield Earned</span>
                     <div className="flex items-center gap-1">
                       <TrendingUp className="w-3 h-3 text-primary" />
-                      <span className="text-sm font-mono text-primary">+$156.04</span>
+                      <span className="text-sm font-mono text-primary">+$0.00</span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">APY</span>
-                    <span className="text-sm font-mono text-primary">7.8%</span>
+                    <span className="text-sm font-mono text-primary">0%</span>
                   </div>
                 </div>
               </div>

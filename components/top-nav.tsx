@@ -33,7 +33,6 @@ export function TopNav() {
     { href: "/positions", label: "Positions" },
     { href: "/vault", label: "Vault" },
     { href: "/portfolio", label: "Portfolio" }, // Added Portfolio navigation link after Vault
-    { href: "/stake", label: "Stake" },
     { href: "/explorer", label: "Explorer" },
   ]
 

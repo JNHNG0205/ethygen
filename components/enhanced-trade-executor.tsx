@@ -27,7 +27,8 @@ export function EnhancedTradeExecutor() {
 
   const { price: currentPrice } = usePriceFeed("ETH/USDC")
 
-  const availableBalance = 8234.5
+  // Fresh user: no available balance until deposit
+  const availableBalance = 0
 
   const calculatePosition = () => {
     const marginNum = Number.parseFloat(margin) || 0
