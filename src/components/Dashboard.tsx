@@ -11,6 +11,8 @@ import ChainSelector from './ChainSelector';
 import WalletFunding from './WalletFunding';
 import WalletCreation from './WalletCreation';
 import Navbar from './Navbar';
+import NexusIntegration from '@/components/NexusIntegration';
+import { NexusProvider } from '@/lib/nexus-provider';
 
 export default function Dashboard() {
   const { ready, authenticated, login, logout } = usePrivy();
@@ -178,6 +180,15 @@ export default function Dashboard() {
         {authenticated && (
           <div className="mt-8">
             <BatchTransactionTest />
+          </div>
+        )}
+
+        {/* Nexus Integration */}
+        {authenticated && (
+          <div className="mt-8">
+            <NexusProvider isConnected={isConnected}>
+              <NexusIntegration />
+            </NexusProvider>
           </div>
         )}
 

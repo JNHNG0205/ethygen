@@ -5,7 +5,7 @@ import { PrivyProvider } from '@privy-io/react-auth';
 import { SmartWalletsProvider } from '@privy-io/react-auth/smart-wallets';
 // Make sure to import these from `@privy-io/wagmi`, not `wagmi`
 import { WagmiProvider, createConfig } from '@privy-io/wagmi';
-import { sepolia, mainnet } from 'viem/chains';
+import { sepolia, mainnet, baseSepolia } from 'viem/chains';
 import { http } from 'wagmi';
 import { ReactNode } from 'react';
 
@@ -13,10 +13,11 @@ const queryClient = new QueryClient();
 
 // Create wagmi config
 const wagmiConfig = createConfig({
-  chains: [sepolia, mainnet],
+  chains: [sepolia, mainnet, baseSepolia],
   transports: {
     [sepolia.id]: http(),
     [mainnet.id]: http(),
+    [baseSepolia.id]: http(),
   },
 });
 
@@ -52,7 +53,7 @@ const privyConfig = {
     'discord' as const, 
   ], // Social and email login only - smart wallets auto-created
   defaultChain: sepolia,
-  supportedChains: [sepolia, mainnet],
+  supportedChains: [sepolia, mainnet, baseSepolia],
 };
 
 export default function Providers({ children }: { children: ReactNode }) {
