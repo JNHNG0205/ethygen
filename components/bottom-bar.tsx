@@ -55,13 +55,6 @@ export function BottomBar() {
 
         <div className="h-12 w-px bg-border" />
 
-        <div>
-          <div className="text-xs text-muted-foreground mb-1">Available Margin</div>
-          <div className="text-lg font-mono font-semibold text-foreground">
-            ${availableMargin.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-          </div>
-          <div className="text-xs text-muted-foreground">yUSDe Balance</div>
-        </div>
       </div>
 
       {/* Center: Open Positions */}

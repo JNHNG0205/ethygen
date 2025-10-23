@@ -4,9 +4,15 @@ import { TopNav } from "@/components/top-nav";
 import { BottomBar } from "@/components/bottom-bar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Search, Filter, Download, TrendingUp, TrendingDown } from "lucide-react";
+import { ChevronDown, Search, Filter, Download, TrendingUp, TrendingDown, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis } from "recharts";
+import { useNexus } from "@/providers/nexus-provider";
+import { UnifiedBalanceCard } from "@/components/unified-balance-card";
+import { DepositModal } from "@/components/deposit-modal";
+import { useRouter } from "next/navigation";
+import { usePythPush } from "@/hooks/use-pyth-push";
+import { FundingHelperModal } from "@/components/funding-helper-modal";
 
 // Fresh user: all stats and tables are zero/empty
 const summary = [
@@ -37,9 +43,26 @@ const activePositions: Array<{
 const closedPositions: typeof activePositions = [];
 
 export default function PortfolioPage() {
-	const [tab, setTab] = useState("active");
+	const [tab, setTab] = useState("balances");
 	const [filterAsset, setFilterAsset] = useState("All");
 	const [search, setSearch] = useState("");
+	const [showDepositModal, setShowDepositModal] = useState(false);
+	const { balances, isInitialized, isLoading, refreshBalances } = useNexus();
+	const router = useRouter();
+	const { pushOnChain } = usePythPush();
+
+	function PythPushButton() {
+		return (
+			<Button
+				variant="outline"
+				size="sm"
+				className="text-xs"
+				onClick={() => pushOnChain(["ETH/yUSDe", "BTC/yUSDe"] as any)}
+			>
+				Push Pyth On-Chain
+			</Button>
+		);
+	}
 
 	// Filtered positions (mock logic)
 	const filteredActive = activePositions.filter(
@@ -53,6 +76,8 @@ export default function PortfolioPage() {
 		<div className="min-h-screen bg-black">
 			<TopNav />
 			<main className="max-w-7xl mx-auto pt-[72px] pb-[80px] px-4">
+				{/* Funding helper for fresh wallets (shows once unless dismissed) */}
+				<FundingHelperModal onOpenDeposit={() => setShowDepositModal(true)} />
 				{/* Summary Row */}
 				<div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4 items-center">
 					{summary.map((s, i) => (
@@ -61,8 +86,8 @@ export default function PortfolioPage() {
 							<div className="text-xs text-muted-foreground mt-1">{s.label}</div>
 						</Card>
 					))}
-					<Card className="col-span-2 md:col-span-1 p-2 flex flex-col items-center bg-[#0a0a0a] h-full justify-center">
-						<div className="w-full h-[60px]">
+					<Card className="col-span-2 md:col-span-1 p-2 flex flex-col items-center bg-[#0a0a0a] h-full justify-center min-w-0">
+						<div className="w-full h-[60px]" style={{ minWidth: 0, minHeight: 60 }}>
 							<ResponsiveContainer width="100%" height="100%">
 								<LineChart data={chartData} margin={{ left: 0, right: 0, top: 8, bottom: 8 }}>
 									<Line type="monotone" dataKey="pnl" stroke="#00d4ff" strokeWidth={2} dot={false} />
@@ -75,7 +100,13 @@ export default function PortfolioPage() {
 					</Card>
 				</div>
 
-				{/* Sticky Filters Bar */}
+				{/* Unified Balances summary card */}
+				<div className="mb-4">
+					<UnifiedBalanceCard />
+				</div>
+
+				{/* Sticky Filters Bar (hide on Balances tab) */}
+				{tab !== "balances" && (
 				<div className="sticky top-[72px] z-10 bg-black py-2 flex flex-wrap gap-2 items-center border-b border-[#1e1e1e] mb-2">
 					<div className="flex gap-2 items-center">
 						<select
@@ -101,14 +132,92 @@ export default function PortfolioPage() {
 						<Button variant="ghost" size="sm" className="text-xs px-2 py-0 h-7 flex items-center gap-1"><Download className="w-3 h-3 mr-1" />Export CSV</Button>
 					</div>
 				</div>
+				)}
 
 				{/* Tabs */}
-				<div className="flex gap-2 mb-2">
-					<Button onClick={() => setTab("active")} variant={tab === "active" ? "default" : "ghost"} className="rounded-t px-6 py-2 text-sm">Active ({filteredActive.length})</Button>
-					<Button onClick={() => setTab("closed")} variant={tab === "closed" ? "default" : "ghost"} className="rounded-t px-6 py-2 text-sm">Closed ({filteredClosed.length})</Button>
-				</div>
+								<div className="flex gap-2 mb-2">
+										<Button onClick={() => setTab("balances")} variant={tab === "balances" ? "default" : "ghost"} className="rounded-t px-6 py-2 text-sm">Balances ({balances?.length || 0})</Button>
+										<Button onClick={() => setTab("active")} variant={tab === "active" ? "default" : "ghost"} className="rounded-t px-6 py-2 text-sm">Active ({filteredActive.length})</Button>
+										<Button onClick={() => setTab("closed")} variant={tab === "closed" ? "default" : "ghost"} className="rounded-t px-6 py-2 text-sm">Closed ({filteredClosed.length})</Button>
+								</div>
 
-				{/* Table */}
+								{/* Balances Tab Content */}
+								{tab === "balances" ? (
+									<Card className="p-4 bg-[#0a0a0a]">
+										<div className="flex items-center justify-between mb-3">
+											<div className="text-sm text-muted-foreground">Multi-chain balances via Nexus</div>
+											<div className="flex gap-2">
+												<Button onClick={() => setShowDepositModal(true)} size="sm" className="text-xs bg-cyan-400 hover:bg-cyan-300 text-black">
+													Bridge & Deposit
+													<ArrowRight className="ml-1 w-3 h-3" />
+												</Button>
+												<Button onClick={refreshBalances} size="sm" disabled={!isInitialized || isLoading} variant="outline" className="text-xs">
+													{isLoading ? 'Refreshing…' : 'Refresh'}
+												</Button>
+												{/* Optional: push Pyth on-chain */}
+												<PythPushButton />
+											</div>
+										</div>
+										{(balances?.length || 0) === 0 ? (
+											<div className="py-8 flex flex-col items-center justify-center gap-3">
+												<div className="text-muted-foreground text-sm text-center">No assets detected yet</div>
+												<Button onClick={() => setShowDepositModal(true)} size="sm" className="bg-cyan-400 hover:bg-cyan-300 text-black">
+													Bridge & Deposit to Get Started
+													<ArrowRight className="ml-1 w-4 h-4" />
+												</Button>
+											</div>
+										) : (
+											<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+												{balances.map((b: any, idx: number) => {
+													const chainMap: Record<string, string> = {}
+													;(b.breakdown || []).forEach((d: any) => {
+														const chainName = (d.chain?.name || d.network || '').toLowerCase()
+														if (chainName.includes('ethereum') || chainName.includes('eth sepolia')) chainMap['eth'] = d.balance
+														else if (chainName.includes('base')) chainMap['base'] = d.balance
+														else if (chainName.includes('arbitrum') || chainName.includes('arb')) chainMap['arb'] = d.balance
+														else if (chainName.includes('optimism') || chainName.includes('op')) chainMap['op'] = d.balance
+													})
+													return (
+														<Card key={idx} className="p-4 bg-[#0a0a0a] border border-[#1e1e1e] hover:border-cyan-400/20 transition-colors">
+															<div className="flex items-start justify-between mb-3">
+																<div>
+																	<div className="font-mono font-bold text-lg">{b.symbol || b.name || '—'}</div>
+																	<div className="text-muted-foreground text-xs">
+																		{b.balanceInFiat ? `$${Number(b.balanceInFiat).toLocaleString()}` : '$0'}
+																	</div>
+																</div>
+																<div className="text-right">
+																	<div className="font-mono text-sm text-cyan-400">{b.balance ?? '0'}</div>
+																	<div className="text-[10px] text-muted-foreground">Total</div>
+																</div>
+															</div>
+															<div className="grid grid-cols-2 gap-2 text-[10px]">
+																<div className="bg-[#101c1a] rounded px-2 py-1.5 flex items-center justify-between">
+																	<span className="text-muted-foreground">Eth</span>
+																	<span className="font-mono">{chainMap['eth'] || '0'}</span>
+																</div>
+																<div className="bg-[#101c1a] rounded px-2 py-1.5 flex items-center justify-between">
+																	<span className="text-muted-foreground">Base</span>
+																	<span className="font-mono">{chainMap['base'] || '0'}</span>
+																</div>
+																<div className="bg-[#101c1a] rounded px-2 py-1.5 flex items-center justify-between">
+																	<span className="text-muted-foreground">Arb</span>
+																	<span className="font-mono">{chainMap['arb'] || '0'}</span>
+																</div>
+																<div className="bg-[#101c1a] rounded px-2 py-1.5 flex items-center justify-between">
+																	<span className="text-muted-foreground">OP</span>
+																	<span className="font-mono">{chainMap['op'] || '0'}</span>
+																</div>
+															</div>
+														</Card>
+													)
+												})}
+											</div>
+										)}
+									</Card>
+								) : (
+								<>
+								{/* Table */}
 				<div className="bg-[#0a0a0a] rounded-xl overflow-x-auto">
 					<table className="w-full text-xs" aria-label={tab === "active" ? "Active Positions" : "Closed Positions"}>
 						<thead className="bg-[#101c1a] text-muted-foreground">
@@ -156,6 +265,11 @@ export default function PortfolioPage() {
 				{tab === "closed" && (
 					<div className="flex justify-end text-xs text-muted-foreground mt-2">Net Realized PnL: $0.00</div>
 				)}
+								</>
+								)}
+
+			{/* Deposit Modal */}
+			<DepositModal isOpen={showDepositModal} onClose={() => setShowDepositModal(false)} />
 			</main>
 			<BottomBar />
 		</div>

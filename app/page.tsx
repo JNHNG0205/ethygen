@@ -1,10 +1,13 @@
+"use client"
+
 import { TopNav } from "@/components/top-nav"
 import { BottomBar } from "@/components/bottom-bar"
-import { AdvancedTradingChart } from "@/components/advanced-trading-chart"
 import { EnhancedOrderBook } from "@/components/enhanced-order-book"
 import { EnhancedTradeExecutor } from "@/components/enhanced-trade-executor"
 import { MarketOverview } from "@/components/market-overview"
-import PythChart from "@/components/pyth-chart"
+import dynamic from "next/dynamic"
+
+const PythChart = dynamic(() => import("@/components/pyth-chart"), { ssr: false })
 
 export default function TradePage() {
   return (
@@ -37,7 +40,7 @@ export default function TradePage() {
         {/* Mobile: Stacked Layout */}
         <div className="lg:hidden flex flex-col h-full">
           <div className="flex-1 border-b border-[#1e1e1e]">
-            <AdvancedTradingChart />
+            <PythChart />
           </div>
           <div className="h-[300px] border-b border-[#1e1e1e]">
             <EnhancedOrderBook />

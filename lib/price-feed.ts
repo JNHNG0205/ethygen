@@ -44,9 +44,12 @@ export class PriceFeedService {
     if (!feedId) return
 
     try {
-      const response = await fetch(
-        `https://hermes.pyth.network/v2/updates/price/latest?ids[]=${feedId}`
-      )
+      const configured = process.env.NEXT_PUBLIC_PYTH_HERMES_URL?.trim()
+      const network = (process.env.NEXT_PUBLIC_PYTH_NETWORK || "mainnet").toLowerCase().trim()
+      const defaultBase = network === "testnet" ? "https://hermes-beta.pyth.network" : "https://hermes.pyth.network"
+      const baseUrl = (configured || defaultBase).replace(/\/$/, "")
+      const url = `${baseUrl}/v2/updates/price/latest?ids[]=${feedId}`
+      const response = await fetch(url)
       const data = await response.json()
       
       if (data.parsed && data.parsed[0]) {

@@ -1,5 +1,5 @@
 import type { PrivyClientConfig } from "@privy-io/react-auth"
-import { baseSepolia } from "viem/chains"
+import { baseSepolia, sepolia, polygonAmoy, arbitrumSepolia, optimismSepolia } from "viem/chains"
 
 export const privyConfig: PrivyClientConfig = {
   appearance: {
@@ -15,5 +15,6 @@ export const privyConfig: PrivyClientConfig = {
       // noPromptOnSignature: true, // Uncomment to minimize signature prompts
     },
   },
-  supportedChains: [baseSepolia],
+  // Support tutorial testnets: Base Sepolia, Sepolia, Polygon Amoy, Arbitrum Sepolia, Optimism Sepolia
+  supportedChains: [baseSepolia, sepolia, polygonAmoy, arbitrumSepolia, optimismSepolia],
 }

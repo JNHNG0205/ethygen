@@ -4,6 +4,7 @@ import { Inter, JetBrains_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { PrivyProviderWrapper } from "@/providers/privy-provider"
 import { Toaster } from "@/components/ui/toaster"
+import { Toaster as SonnerToaster } from "@/components/ui/sonner"
 import "./globals.css"
 
 const inter = Inter({
@@ -29,11 +30,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className={`font-sans antialiased`}>
+      <body className="font-sans antialiased">
         <PrivyProviderWrapper>
           {children}
+
+          {/* UI + Analytics */}
           <Toaster />
+          <SonnerToaster richColors position="top-right" />
         </PrivyProviderWrapper>
+
         <Analytics />
       </body>
     </html>

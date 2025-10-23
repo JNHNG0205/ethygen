@@ -32,8 +32,7 @@ export function TopNav() {
   const navLinks = [
     { href: "/", label: "Trade" },
     { href: "/vault", label: "Vault" },
-    { href: "/portfolio", label: "Portfolio" }, // Added Portfolio navigation link after Vault
-    { href: "/explorer", label: "Explorer" },
+    { href: "/portfolio", label: "Portfolio" }, 
   ]
 
   return (
