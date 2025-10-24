@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useBridgeAndExecute } from "@/hooks/use-bridge-and-execute";
 import { useUnifiedBalances } from "@/hooks/use-unified-balances";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { Button } from "@/components/ui/button";
@@ -9,21 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { X, ArrowRight, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-
-// Mock vault config (replace with actual contract details)
-const VAULT_ADDRESS = "0xYourVaultAddressHere" as `0x${string}`;
-const VAULT_ABI = [
-  {
-    inputs: [
-      { internalType: "uint256", name: "amount", type: "uint256" },
-      { internalType: "address", name: "receiver", type: "address" },
-    ],
-    name: "mintUSDe",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-];
 
 interface DepositModalProps {
   isOpen: boolean;
@@ -35,7 +19,6 @@ export function DepositModal({ isOpen, onClose }: DepositModalProps) {
   const { wallets } = useWallets();
   const address = wallets[0]?.address as `0x${string}` | undefined;
   const { data: balances } = useUnifiedBalances(address);
-  const { bridgeAndExecute } = useBridgeAndExecute();
 
   const [amount, setAmount] = useState("100");
   const [token, setToken] = useState("USDC");
@@ -57,46 +40,9 @@ export function DepositModal({ isOpen, onClose }: DepositModalProps) {
       return;
     }
 
-    setIsLoading(true);
-    setStep("processing");
-
-    try {
-      const bridgeResult = await bridgeAndExecute(
-        token,
-        amount,
-        [1], // Source: Ethereum mainnet (change as needed)
-        {
-          address: VAULT_ADDRESS,
-          abi: VAULT_ABI,
-          functionName: "mintUSDe",
-        },
-        address
-      );
-
-      if (bridgeResult.success) {
-        setStep("success");
-        setResult({ hash: bridgeResult.executeTxHash || bridgeResult.bridgeTxHash });
-        toast.success(
-          `Deposited ${amount} ${token}! ${bridgeResult.bridgeSkipped ? "(Bridge skipped)" : "(Bridged)"}`
-        );
-        // Auto-close after 3s
-        setTimeout(() => {
-          onClose();
-          resetModal();
-        }, 3000);
-      } else {
-        setStep("error");
-        setResult({ error: bridgeResult.error || "Unknown error" });
-        toast.error(bridgeResult.error || "Deposit failed");
-      }
-    } catch (err) {
-      setStep("error");
-      const msg = (err as Error)?.message || "Unknown error";
-      setResult({ error: msg });
-      toast.error("Deposit failed: " + msg);
-    } finally {
-      setIsLoading(false);
-    }
+    // Temporarily disabled - vault contract coming soon
+    toast.info("Deposit functionality coming soon! Vault contract is being deployed.");
+    return;
   };
 
   const resetModal = () => {
@@ -196,7 +142,7 @@ export function DepositModal({ isOpen, onClose }: DepositModalProps) {
                   disabled={!authenticated || !amount || Number(amount) <= 0}
                   className="w-full h-11 bg-cyan-400 hover:bg-cyan-300 text-black font-semibold"
                 >
-                  Bridge & Mint Gasless
+                  Coming Soon - Vault Deploying
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </div>

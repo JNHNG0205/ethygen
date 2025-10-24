@@ -5,14 +5,28 @@ import { BottomBar } from "@/components/bottom-bar"
 import { EnhancedOrderBook } from "@/components/enhanced-order-book"
 import { EnhancedTradeExecutor } from "@/components/enhanced-trade-executor"
 import { MarketOverview } from "@/components/market-overview"
+import { useTradingViewPrice } from "@/hooks/use-tradingview-price"
 import dynamic from "next/dynamic"
 
 const PythChart = dynamic(() => import("@/components/pyth-chart"), { ssr: false })
+
+// Debug component to test the hook
+function DebugPriceFeed() {
+  const { price, isConnected } = useTradingViewPrice("ETH/yUSDe")
+  
+  return (
+    <div className="fixed top-20 right-4 bg-red-900 text-white p-2 rounded text-xs z-50">
+      <div>ETH/yUSDe: {price ? `$${price}` : 'Loading...'}</div>
+      <div>Connected: {isConnected ? 'Yes' : 'No'}</div>
+    </div>
+  )
+}
 
 export default function TradePage() {
   return (
     <div className="h-screen w-screen bg-black flex flex-col overflow-hidden">
       <TopNav />
+      <DebugPriceFeed />
 
       <main className="flex-1 mt-[60px] mb-[80px] overflow-hidden">
         {/* Market Overview Banner - Compact */}
