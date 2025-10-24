@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch"
 import { AlertCircle, Info, Loader2, CheckCircle2 } from "lucide-react"
 import { useGaslessTrading } from "@/hooks/use-gasless-trading"
 import { useToast } from "@/hooks/use-toast"
-import { usePriceFeed } from "@/hooks/use-price-feed"
+import { useTradingViewPrice } from "@/hooks/use-tradingview-price"
 import { useMarket } from "@/hooks/use-market"
 import { usePositions } from "@/hooks/use-positions"
 
@@ -28,7 +28,7 @@ export function EnhancedTradeExecutor() {
   const { toast } = useToast()
 
   const { asset: selectedAsset } = useMarket()
-  const { price: currentPrice, isConnected } = usePriceFeed(selectedAsset)
+  const { price: currentPrice, isConnected } = useTradingViewPrice(selectedAsset)
   const { openPosition } = usePositions()
 
   // Fresh user: no available balance until deposit
