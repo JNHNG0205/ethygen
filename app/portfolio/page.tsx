@@ -51,18 +51,7 @@ export default function PortfolioPage() {
 	const router = useRouter();
 	const { pushOnChain } = usePythPush();
 
-	function PythPushButton() {
-		return (
-			<Button
-				variant="outline"
-				size="sm"
-				className="text-xs"
-				onClick={() => pushOnChain(["ETH/yUSDe", "BTC/yUSDe"] as any)}
-			>
-				Push Pyth On-Chain
-			</Button>
-		);
-	}
+    // Pyth push removed per request
 
 	// Filtered positions (mock logic)
 	const filteredActive = activePositions.filter(
@@ -73,7 +62,7 @@ export default function PortfolioPage() {
 	);
 
 	return (
-		<div className="min-h-screen bg-black">
+		<div className="h-screen bg-black overflow-y-auto">
 			<TopNav />
 			<main className="max-w-7xl mx-auto pt-[72px] pb-[80px] px-4">
 				{/* Funding helper for fresh wallets (shows once unless dismissed) */}
@@ -154,8 +143,7 @@ export default function PortfolioPage() {
 												<Button onClick={refreshBalances} size="sm" disabled={!isInitialized || isLoading} variant="outline" className="text-xs">
 													{isLoading ? 'Refreshing…' : 'Refresh'}
 												</Button>
-												{/* Optional: push Pyth on-chain */}
-												<PythPushButton />
+
 											</div>
 										</div>
 										{(balances?.length || 0) === 0 ? (

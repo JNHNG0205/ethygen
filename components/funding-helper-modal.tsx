@@ -78,29 +78,21 @@ export function FundingHelperModal({ open, onOpenChange, onOpenDeposit }: Fundin
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Card className="p-3 bg-[#0a0a0a]">
-              <div className="font-medium mb-1">Base Sepolia ETH</div>
-              <div className="text-xs text-muted-foreground mb-2">Optional for gas; Privy often sponsors</div>
+              <div className="font-medium mb-1">Circle Faucet</div>
+              <div className="text-xs text-muted-foreground mb-2">Get test funds via Circle's faucet.</div>
               <div className="flex gap-2">
-                <a target="_blank" rel="noreferrer" href="https://www.base.org/faucets">
-                  <Button size="sm" className="bg-cyan-400 text-black hover:bg-cyan-300">Base Faucet</Button>
-                </a>
-                <a target="_blank" rel="noreferrer" href="https://sepoliafaucet.com">
-                  <Button size="sm" variant="outline">Alchemy Faucet</Button>
+                <a target="_blank" rel="noreferrer" href="https://faucet.circle.com/">
+                  <Button size="sm" className="bg-cyan-400 text-black hover:bg-cyan-300">Open Circle Faucet</Button>
                 </a>
               </div>
             </Card>
+
             <Card className="p-3 bg-[#0a0a0a]">
-              <div className="font-medium mb-1">Sepolia USDC/ETH</div>
-              <div className="text-xs text-muted-foreground mb-2">For cross-chain deposits via Nexus</div>
-              <div className="flex gap-2 flex-wrap">
-                <a target="_blank" rel="noreferrer" href="https://www.paradigm.xyz/faucet">
-                  <Button size="sm" variant="outline">Paradigm Faucet</Button>
-                </a>
-                <a target="_blank" rel="noreferrer" href="https://faucet.quicknode.com/ethereum/sepolia">
-                  <Button size="sm" variant="outline">QuickNode Faucet</Button>
-                </a>
-                <a target="_blank" rel="noreferrer" href="https://app.uniswap.org/swap?chain=sepolia">
-                  <Button size="sm" variant="outline">Uniswap (swap)</Button>
+              <div className="font-medium mb-1">Google Cloud Web3 Faucet</div>
+              <div className="text-xs text-muted-foreground mb-2">Google Cloud's Web3 faucet tooling.</div>
+              <div className="flex gap-2">
+                <a target="_blank" rel="noreferrer" href="https://cloud.google.com/application/web3/faucet">
+                  <Button size="sm" variant="outline">Open Google Cloud Faucet</Button>
                 </a>
               </div>
             </Card>
