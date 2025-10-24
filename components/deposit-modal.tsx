@@ -20,13 +20,6 @@ export function DepositModal({ isOpen, onClose }: DepositModalProps) {
   const address = wallets[0]?.address as `0x${string}` | undefined;
   const { data: balances } = useUnifiedBalances(address);
 
-  // Detect whether the selected token exists on the execution chain (Base Sepolia)
-  const hasOnBase = (balances || []).some((b: any) => {
-    if (!b?.breakdown || !b?.symbol) return false
-    if (b.symbol !== token) return false
-    return b.breakdown.some((d: any) => (d.chain?.name || '').toLowerCase().includes('base'))
-  })
-
   const [amount, setAmount] = useState("100");
   const [token, setToken] = useState("USDC");
   const [isLoading, setIsLoading] = useState(false);
@@ -141,11 +134,6 @@ export function DepositModal({ isOpen, onClose }: DepositModalProps) {
                     <br />• Gasless via Privy smart wallet
                     <br />• Instant execution on target chain
                   </p>
-                  {hasOnBase ? (
-                    <div className="mt-2 text-sm text-foreground font-mono">Bridge skipped: detected {token} on Base (direct mint available)</div>
-                  ) : (
-                    <div className="mt-2 text-sm text-muted-foreground">If {token} is on another chain we will bridge it to Base Sepolia and mint.</div>
-                  )}
                 </div>
 
                 {/* Submit button */}
@@ -154,7 +142,7 @@ export function DepositModal({ isOpen, onClose }: DepositModalProps) {
                   disabled={!authenticated || !amount || Number(amount) <= 0}
                   className="w-full h-11 bg-cyan-400 hover:bg-cyan-300 text-black font-semibold"
                 >
-                  {hasOnBase ? `Direct Mint (Vault Pending)` : `Bridge & Mint (Vault Pending)`}
+                  Coming Soon - Vault Deploying
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </div>

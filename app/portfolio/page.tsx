@@ -11,7 +11,6 @@ import { useNexus } from "@/providers/nexus-provider";
 import { UnifiedBalanceCard } from "@/components/unified-balance-card";
 import { DepositModal } from "@/components/deposit-modal";
 import { useRouter } from "next/navigation";
-import { usePythPush } from "@/hooks/use-pyth-push";
 import { FundingHelperModal } from "@/components/funding-helper-modal";
 
 // Fresh user: all stats and tables are zero/empty
@@ -49,9 +48,7 @@ export default function PortfolioPage() {
 	const [showDepositModal, setShowDepositModal] = useState(false);
 	const { balances, isInitialized, isLoading, refreshBalances } = useNexus();
 	const router = useRouter();
-	const { pushOnChain } = usePythPush();
-
-    // Pyth push removed per request
+	
 
 	// Filtered positions (mock logic)
 	const filteredActive = activePositions.filter(
@@ -143,7 +140,6 @@ export default function PortfolioPage() {
 												<Button onClick={refreshBalances} size="sm" disabled={!isInitialized || isLoading} variant="outline" className="text-xs">
 													{isLoading ? 'Refreshing…' : 'Refresh'}
 												</Button>
-
 											</div>
 										</div>
 										{(balances?.length || 0) === 0 ? (
