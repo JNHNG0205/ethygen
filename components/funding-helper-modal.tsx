@@ -64,7 +64,7 @@ export function FundingHelperModal({ open, onOpenChange, onOpenDeposit }: Fundin
         <DialogHeader>
           <DialogTitle className="text-lg">New wallet? Fund it in 2 minutes</DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Privy smart wallets start empty. Grab a bit of testnet ETH/USDC, then deposit gaslessly. On Base Sepolia.
+            Privy smart wallets start empty. Grab a bit of testnet ETH/USDC, then deposit gaslessly. On Ethereum Sepolia.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">

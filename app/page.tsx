@@ -5,19 +5,19 @@ import { BottomBar } from "@/components/bottom-bar"
 import { EnhancedOrderBook } from "@/components/enhanced-order-book"
 import { EnhancedTradeExecutor } from "@/components/enhanced-trade-executor"
 import { MarketOverview } from "@/components/market-overview"
-import { useTradingViewPrice } from "@/hooks/use-tradingview-price"
+import { useUnifiedPrice } from "@/hooks/use-unified-price"
 import dynamic from "next/dynamic"
 
 const PythChart = dynamic(() => import("@/components/pyth-chart"), { ssr: false })
 
-// Debug component to test the hook
+// Debug component to test the unified hook
 function DebugPriceFeed() {
-  const { price, isConnected } = useTradingViewPrice("ETH/yUSDe")
-  
+  const { price, isConnected, source } = useUnifiedPrice("ETH/yUSDe")
+
   return (
     <div className="fixed top-20 right-4 bg-red-900 text-white p-2 rounded text-xs z-50">
       <div>ETH/yUSDe: {price ? `$${price}` : 'Loading...'}</div>
-      <div>Connected: {isConnected ? 'Yes' : 'No'}</div>
+      <div>Connected: {isConnected ? 'Yes' : 'No'} ({source})</div>
     </div>
   )
 }

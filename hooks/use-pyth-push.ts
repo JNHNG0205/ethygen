@@ -1,7 +1,7 @@
 "use client"
 import { useCallback } from "react"
 import { useWallets } from "@privy-io/react-auth"
-import { baseSepolia } from "viem/chains"
+import SEPOLIA_CHAIN from "@/lib/chains"
 import { createPublicClient, custom, encodeFunctionData } from "viem"
 import { PRICE_FEED_IDS } from "@/lib/price-feed"
 import { getPythAddress, PYTH_ABI } from "@/lib/pyth-evm"
@@ -104,7 +104,7 @@ export function usePythPush() {
         const eip1193: any = getProvider ? await getProvider.call(primary) : (primary as any)?.provider
         if (!eip1193) throw new Error("No EIP-1193 provider available")
 
-        const chainId = baseSepolia.id
+  const chainId = SEPOLIA_CHAIN.id
         const pyth = getPythAddress(chainId)
 
         const feedIds = assets
@@ -115,7 +115,7 @@ export function usePythPush() {
   const updateData = await fetchHermesUpdateData(feedIds)
 
         // Read fee via viem public client using the wallet provider
-        const publicClient = createPublicClient({ chain: baseSepolia, transport: custom(eip1193) })
+  const publicClient = createPublicClient({ chain: SEPOLIA_CHAIN.chain, transport: custom(eip1193) })
         const fee = (await publicClient.readContract({
           address: pyth,
           abi: PYTH_ABI,

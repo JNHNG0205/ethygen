@@ -10,7 +10,8 @@ import { Switch } from "@/components/ui/switch"
 import { AlertCircle, Info, Loader2, CheckCircle2 } from "lucide-react"
 import { useGaslessTrading } from "@/hooks/use-gasless-trading"
 import { useToast } from "@/hooks/use-toast"
-import { useTradingViewPrice } from "@/hooks/use-tradingview-price"
+import { useUnifiedPrice } from "@/hooks/use-unified-price"
+import SEPOLIA_CHAIN from "@/lib/chains"
 import { useMarket } from "@/hooks/use-market"
 import { usePositions } from "@/hooks/use-positions"
 
@@ -28,7 +29,7 @@ export function EnhancedTradeExecutor() {
   const { toast } = useToast()
 
   const { asset: selectedAsset } = useMarket()
-  const { price: currentPrice, isConnected } = useTradingViewPrice(selectedAsset)
+  const { price: currentPrice, isConnected } = useUnifiedPrice(selectedAsset)
   const { openPosition } = usePositions()
 
   // Fresh user: no available balance until deposit
@@ -102,7 +103,7 @@ export function EnhancedTradeExecutor() {
             <p>{result.message}</p>
             {result.txHash && (
               <a
-                href={`https://sepolia.basescan.org/tx/${result.txHash}`}
+                href={`${SEPOLIA_CHAIN.explorerUrl}/tx/${result.txHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs font-mono text-primary hover:underline flex items-center gap-1"

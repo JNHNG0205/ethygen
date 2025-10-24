@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { PriceFeedService, type PriceData } from "@/lib/price-feed"
 
 interface TradingViewPriceData {
   price: number
@@ -12,7 +13,7 @@ interface TradingViewPriceData {
 // Base prices for each asset (realistic current prices)
 const BASE_PRICES: Record<string, number> = {
   "ETH/yUSDe": 3974.85,
-  "BTC/yUSDe": 67890.12,
+  "BTC/yUSDe": 110890.12,
   "SOL/yUSDe": 145.67,
   "ARB/yUSDe": 1.23,
 }
@@ -26,6 +27,39 @@ export function useTradingViewPrice(asset: string) {
   })
 
   useEffect(() => {
+    // Prefer live Pyth prices when available
+    const priceFeed = PriceFeedService.getInstance()
+    const live = priceFeed.getCurrentPrice(asset)
+
+    // If we have live data from the PriceFeedService, subscribe and use it
+    // Normalize alias: check canonical USDC pair when the asset is a yUSDe alias
+    const canonicalAsset = asset.includes("yUSDe") ? asset.replace("/yUSDe", "/USDC") : asset
+    const liveCanonical = priceFeed.getCurrentPrice(canonicalAsset)
+
+    if (live || liveCanonical) {
+      const source = live || liveCanonical!
+      setPriceData({
+        price: source.price,
+        change24h: source.change24h,
+        volume24h: source.volume24h,
+        isConnected: true,
+      })
+
+      const unsubscribe = priceFeed.subscribe(canonicalAsset, (data: PriceData) => {
+        setPriceData({
+          price: data.price,
+          change24h: data.change24h,
+          volume24h: data.volume24h,
+          isConnected: true,
+        })
+      })
+
+      return () => {
+        unsubscribe()
+      }
+    }
+
+    // No live feed available — fall back to simulated TradingView prices
     const basePrice = BASE_PRICES[asset]
     if (!basePrice) {
       console.warn(`No base price found for asset: ${asset}`)

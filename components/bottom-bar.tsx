@@ -3,14 +3,14 @@
 import { Button } from "@/components/ui/button"
 import { TrendingUp, TrendingDown } from "lucide-react"
 import { useMarket } from "@/hooks/use-market"
-import { usePriceFeed } from "@/hooks/use-price-feed"
+import { useUnifiedPrice } from "@/hooks/use-unified-price"
 import { usePositions } from "@/hooks/use-positions"
 import { usePrivy } from "@privy-io/react-auth"
 import { useRouter } from "next/navigation"
 
 export function BottomBar() {
   const { asset } = useMarket()
-  const { price, change24h, isConnected } = usePriceFeed(asset)
+  const { price, change24h, isConnected } = useUnifiedPrice(asset)
   const { activePositions } = usePositions()
   const { authenticated, login } = usePrivy()
   const router = useRouter()

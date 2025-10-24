@@ -1,7 +1,7 @@
 "use client";
 
 import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
-import { baseSepolia } from "viem/chains";
+import SEPOLIA_CHAIN from "@/lib/chains";
 import { toast } from "sonner";
 
 export type GaslessTxParams = Record<string, any>;
@@ -9,16 +9,16 @@ export type GaslessTxParams = Record<string, any>;
 export const useSmartWallet = () => {
 	const { client, getClientForChain } = useSmartWallets();
 
-	const getBaseSepoliaClient = async () => {
+	const getSepoliaClient = async () => {
 		if (!client) throw new Error("No smart wallet client");
-		const chainClient = await getClientForChain({ id: baseSepolia.id });
-		if (!chainClient) throw new Error("Smart wallet client unavailable for Base Sepolia");
+		const chainClient = await getClientForChain({ id: SEPOLIA_CHAIN.id });
+		if (!chainClient) throw new Error(`Smart wallet client unavailable for ${SEPOLIA_CHAIN.name}`);
 		return chainClient;
 	};
 
 	const executeGaslessTx = async (txParams: GaslessTxParams, uiTitle = "Confirm Tx") => {
 		try {
-			const baseClient = await getBaseSepoliaClient();
+			const baseClient = await getSepoliaClient();
 			const hash = await baseClient.sendTransaction({
 				...txParams,
 			});
@@ -31,5 +31,5 @@ export const useSmartWallet = () => {
 		}
 	};
 
-	return { client, getBaseSepoliaClient, executeGaslessTx };
+	return { client, getSepoliaClient, executeGaslessTx };
 };

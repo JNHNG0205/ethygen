@@ -3,6 +3,7 @@ import { useCallback } from "react";
 import { useNexus } from "@/providers/nexus-provider";
 import { useSmartWallet } from "@/hooks/use-smart-wallet";
 import { parseUnits } from "viem";
+import SEPOLIA_CHAIN from "@/lib/chains";
 
 export interface BridgeResult {
   success: boolean;
@@ -109,9 +110,9 @@ export const useBridgeAndExecute = () => {
             }
           : undefined;
 
-        // 84532 = Base Sepolia
+        // Default to Ethereum Sepolia
         const simResult = await simulate!({
-          toChainId: 84532,
+          toChainId: SEPOLIA_CHAIN.id,
           token: normalizedToken,
           amount,
           sourceChains: derivedSourceChains,
@@ -124,7 +125,7 @@ export const useBridgeAndExecute = () => {
 
         // Execute; prefer using prepared execution data from simulation if present
         const execParams: any = {
-          toChainId: 84532,
+          toChainId: SEPOLIA_CHAIN.id,
           token: normalizedToken,
           amount,
           sourceChains: derivedSourceChains,

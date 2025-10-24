@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useTradingViewPrice } from "@/hooks/use-tradingview-price"
+import { useUnifiedPrice } from "@/hooks/use-unified-price"
 import { useMarket } from "@/hooks/use-market"
 
 interface OrderBookEntry {
@@ -22,8 +22,9 @@ export function EnhancedOrderBook() {
   const [maxTotal, setMaxTotal] = useState(0)
   
   const { asset: selectedAsset } = useMarket()
-  // Use TradingView price feed (same as chart)
-  const { price: currentPrice } = useTradingViewPrice(selectedAsset)
+  // Use unified price (prefer Pyth, fallback to TradingView) so order book matches other views
+
+  const { price: currentPrice } = useUnifiedPrice(selectedAsset)
 
   // Generate and update order book data based on current price
   useEffect(() => {

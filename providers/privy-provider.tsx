@@ -11,7 +11,7 @@ import { MarketProvider } from "@/providers/market-provider"
 import { ApolloProvider } from "@apollo/client/react"
 import apolloClient from "@/lib/apolloClient"
 import { useEffect, useRef } from "react"
-import { baseSepolia } from "viem/chains"
+import SEPOLIA_CHAIN from "@/lib/chains"
 import { NexusProvider } from "@/providers/nexus-provider"
 
 // Create a single QueryClient instance for the app
@@ -23,7 +23,7 @@ export function PrivyProviderWrapper({ children }: { children: React.ReactNode }
       <ApolloProvider client={apolloClient}>
         <PrivyProvider appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || ""} config={privyConfig}>
           <MarketProvider>
-            {/* Ensure embedded wallets default to Base Sepolia */}
+            {/* Ensure embedded wallets default to Ethereum Sepolia */}
             <ChainBootstrap />
             {/* Guard against duplicate window.ethereum injection errors from extensions/SDKs */}
             <GlobalGuards />
@@ -38,7 +38,7 @@ export function PrivyProviderWrapper({ children }: { children: React.ReactNode }
 }
 
 /**
- * ChainBootstrap: attempts to switch Privy embedded wallets to Base Sepolia on mount/login.
+ * ChainBootstrap: attempts to switch Privy embedded wallets to Ethereum Sepolia on mount/login.
  * Works with current Privy SDK by calling EIP-1193 methods on the wallet provider when available.
  */
 function ChainBootstrap() {
@@ -50,7 +50,7 @@ function ChainBootstrap() {
     if (!ready || once.current) return
     once.current = true
 
-    const hexChainId = `0x${baseSepolia.id.toString(16)}`
+  const hexChainId = SEPOLIA_CHAIN.hexId
 
     const trySwitch = async () => {
       for (const w of wallets) {
@@ -59,8 +59,8 @@ function ChainBootstrap() {
         try {
           // Prefer direct switch method if available
           const maybeSwitch: any = (w as any).switchChain
-          if (typeof maybeSwitch === "function") {
-            await maybeSwitch(baseSepolia.id)
+            if (typeof maybeSwitch === "function") {
+            await maybeSwitch(SEPOLIA_CHAIN.id)
             continue
           }
           // Fallback to provider.request
@@ -86,10 +86,10 @@ function ChainBootstrap() {
                   params: [
                     {
                       chainId: hexChainId,
-                      chainName: "Base Sepolia",
+                      chainName: SEPOLIA_CHAIN.name,
                       nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
-                      rpcUrls: ["https://sepolia.base.org"],
-                      blockExplorerUrls: ["https://sepolia.basescan.org"],
+                      rpcUrls: [SEPOLIA_CHAIN.rpcUrl],
+                      blockExplorerUrls: [SEPOLIA_CHAIN.explorerUrl],
                     },
                   ],
                 })

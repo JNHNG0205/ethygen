@@ -26,7 +26,7 @@
 | **Vault Contract (USDe)**                     | Holds USDe and manages staking/unstaking                          |
 | **Yield Engine**                              | Stakes USDe to earn yield and mints sUSDe                         |
 | **yUSDe Minting Module**                      | Issues yUSDe margin tokens at 0.8:1 ratio for trading             |
-| **Perp DEX Smart Contract (on Base Sepolia)** | Executes perpetual trades using yUSDe                             |
+| **Perp DEX Smart Contract (on Ethereum Sepolia)** | Executes perpetual trades using yUSDe                             |
 | **Pyth Oracle**                               | Provides real-time asset prices for accurate trading data         |
 | **Envio**                                     | Indexes on-chain events and provides analytics data for frontend  |
 
@@ -78,7 +78,7 @@ Ethygen is built using:
 * **Pyth** → For real-time, decentralized price feeds in perpetual trading.
 * **Envio** → For indexing and querying trading data efficiently.
 
-Smart contracts are deployed on **Base Sepolia** testnet, and mock tokens are used for **USDe**, **sUSDe**, and **yUSDe** for simulation.
+Smart contracts are deployed on **Ethereum Sepolia** testnet, and mock tokens are used for **USDe**, **sUSDe**, and **yUSDe** for simulation.
 
 ---
 

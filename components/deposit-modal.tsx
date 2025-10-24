@@ -130,7 +130,7 @@ export function DepositModal({ isOpen, onClose }: DepositModalProps) {
                 {/* Info banner */}
                 <div className="p-3 bg-[#101c1a] rounded border border-[#1e1e1e] text-xs text-muted-foreground">
                   <p>
-                    • Source: Ethereum → Base Sepolia
+                    • Source: Ethereum → Ethereum Sepolia
                     <br />• Gasless via Privy smart wallet
                     <br />• Instant execution on target chain
                   </p>

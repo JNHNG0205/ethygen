@@ -1,6 +1,6 @@
 "use client"
 
-import { useTradingViewPrice } from "@/hooks/use-tradingview-price"
+import { useUnifiedPrice } from "@/hooks/use-unified-price"
 import { TrendingUp, TrendingDown } from "lucide-react"
 
 interface PriceTickerProps {
@@ -10,7 +10,7 @@ interface PriceTickerProps {
 }
 
 export function PriceTicker({ asset, showChange = true, className = "" }: PriceTickerProps) {
-  const { price, change24h, isConnected } = useTradingViewPrice(asset)
+  const { price, change24h, isConnected } = useUnifiedPrice(asset)
 
   if (!price) {
     return (
