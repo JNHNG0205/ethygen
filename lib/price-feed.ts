@@ -45,7 +45,7 @@ export class PriceFeedService {
 
     try {
       const configured = process.env.NEXT_PUBLIC_PYTH_HERMES_URL?.trim()
-      const network = (process.env.NEXT_PUBLIC_PYTH_NETWORK || "mainnet").toLowerCase().trim()
+      const network = (process.env.NEXT_PUBLIC_PYTH_NETWORK || "testnet").toLowerCase().trim()
       const defaultBase = network === "testnet" ? "https://hermes-beta.pyth.network" : "https://hermes.pyth.network"
       const baseUrl = (configured || defaultBase).replace(/\/$/, "")
       const url = `${baseUrl}/v2/updates/price/latest?ids[]=${feedId}`

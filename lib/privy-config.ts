@@ -6,16 +6,25 @@ export const privyConfig: PrivyClientConfig = {
   appearance: {
     theme: "dark",
     accentColor: "#00d4ff",
-    logo: "/placeholder-logo.svg", // Optional: replace with your logo in /public
+    logo: "/placeholder-logo.svg",
     showWalletLoginFirst: false,
   },
   loginMethods: ["email", "wallet", "google"],
+
   embeddedWallets: {
     ethereum: {
       createOnLogin: "users-without-wallets",
-      // noPromptOnSignature: true, // Uncomment to minimize signature prompts
+      // 👇 Force the embedded wallet to use Sepolia (chainId 11155111)
+      defaultChain: {
+        id: SEPOLIA_CHAIN.id,
+        rpcUrl: SEPOLIA_CHAIN.rpcUrl,
+        name: SEPOLIA_CHAIN.name,
+        explorerUrl: SEPOLIA_CHAIN.explorerUrl,
+      },
     },
   },
-  // Support tutorial testnets: Ethereum Sepolia, Polygon Amoy, Arbitrum Sepolia, Optimism Sepolia
+
+  // 👇 Default and supported chains for your dApp
+  defaultChain: SEPOLIA_CHAIN.chain,
   supportedChains: [SEPOLIA_CHAIN.chain, polygonAmoy, arbitrumSepolia, optimismSepolia],
 }

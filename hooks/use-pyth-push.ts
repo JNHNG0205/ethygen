@@ -12,7 +12,7 @@ type Asset = keyof typeof PRICE_FEED_IDS
 
 async function fetchHermesUpdateData(feedIds: string[]): Promise<`0x${string}`[]> {
   const configured = process.env.NEXT_PUBLIC_PYTH_HERMES_URL?.trim()
-  const network = (process.env.NEXT_PUBLIC_PYTH_NETWORK || "mainnet").toLowerCase()
+  const network = (process.env.NEXT_PUBLIC_PYTH_NETWORK || "testnet").toLowerCase()
   const defaultBase = network === "testnet" ? "https://hermes-beta.pyth.network" : "https://hermes.pyth.network"
   const baseUrl = (configured || defaultBase).replace(/\/$/, "")
   const base = `${baseUrl}/v2/updates/price/latest`

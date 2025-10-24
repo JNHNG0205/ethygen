@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Inter, JetBrains_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { PrivyProviderWrapper } from "@/providers/privy-provider"
+import InjectedChainBootstrap from "@/providers/injected-bootstrap"
 import { Toaster } from "@/components/ui/toaster"
 import { Toaster as SonnerToaster } from "@/components/ui/sonner"
 import "./globals.css"
@@ -31,6 +32,8 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body className="font-sans antialiased">
+        {/* Early injected wallet switch: attempt to prompt MetaMask to Sepolia before any sign-in */}
+        <InjectedChainBootstrap />
         <PrivyProviderWrapper>
           {children}
 

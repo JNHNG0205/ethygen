@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { usePrivy, useWallets } from '@privy-io/react-auth'
 import { toast } from 'sonner'
+import SEPOLIA_CHAIN from '@/lib/chains'
 
 const NexusContext = createContext<any>(null);
 
@@ -60,6 +61,57 @@ export const NexusProvider = ({ children }: { children: ReactNode }) => {
             await (provider as any).request({ method: 'eth_requestAccounts' }).catch(() => undefined)
           }
         } catch {}
+
+        // Ensure the resolved provider is on Sepolia (or attempt to switch/add it).
+        const ensureSepolia = async (prov: any): Promise<boolean> => {
+          if (!prov || typeof prov.request !== 'function') return true
+          try {
+            const hex = SEPOLIA_CHAIN.hexId
+            const current = await prov.request({ method: 'eth_chainId' }).catch(() => null)
+            if (current === hex) return true
+
+            // Try switching
+            try {
+              await prov.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: hex }] })
+              return true
+            } catch (err: any) {
+              // If chain not recognized, try to add it
+              if (err?.code === 4902 || /Unrecognized chain/i.test(String(err?.message))) {
+                try {
+                  await prov.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [
+                      {
+                        chainId: hex,
+                        chainName: SEPOLIA_CHAIN.name,
+                        nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+                        rpcUrls: [SEPOLIA_CHAIN.rpcUrl],
+                        blockExplorerUrls: [SEPOLIA_CHAIN.explorerUrl],
+                      },
+                    ],
+                  })
+                  return true
+                } catch {
+                  return false
+                }
+              }
+              return false
+            }
+          } catch {
+            return false
+          }
+        }
+
+        const ok = await ensureSepolia(provider)
+        if (!ok) {
+          // If the user rejected the chain switch or we couldn't add Sepolia, bail out with a helpful message
+          const msg = 'Please switch your wallet to Ethereum Sepolia (approve the prompt) or use the Privy smart wallet.'
+          setError(msg)
+          toast.error(msg)
+          setIsLoading(false)
+          setInitTried(true)
+          return
+        }
 
         // Call SDK's initialize() method with provider (required per v1.1.0 docs)
         const doInit = async () => {

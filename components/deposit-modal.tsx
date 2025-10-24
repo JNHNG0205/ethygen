@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { X, ArrowRight, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { useVaultContract } from "@/hooks/use-vault-contract";
+import SEPOLIA_CHAIN from "@/lib/chains";
 
 interface DepositModalProps {
   isOpen: boolean;
@@ -19,6 +21,9 @@ export function DepositModal({ isOpen, onClose }: DepositModalProps) {
   const { wallets } = useWallets();
   const address = wallets[0]?.address as `0x${string}` | undefined;
   const { data: balances } = useUnifiedBalances(address);
+
+  // Vault contract helpers (tries gasless then falls back to signed transaction)
+  const { depositETH, depositUSDC } = useVaultContract();
 
   const [amount, setAmount] = useState("100");
   const [token, setToken] = useState("USDC");
@@ -40,9 +45,56 @@ export function DepositModal({ isOpen, onClose }: DepositModalProps) {
       return;
     }
 
-    // Temporarily disabled - vault contract coming soon
-    toast.info("Deposit functionality coming soon! Vault contract is being deployed.");
-    return;
+    // ETH deposit path (gasless via Privy smart wallet)
+    if (token === "ETH") {
+      try {
+        setIsLoading(true);
+        setStep("processing");
+  const res = await depositETH(amount);
+        if (res.success) {
+          setResult({ hash: res.hash });
+          setStep("success");
+          toast.success("Deposit transaction sent");
+        } else {
+          setResult({ error: res.error });
+          setStep("error");
+        }
+      } catch (err) {
+        const message = (err as Error)?.message || "Unknown error";
+        setResult({ error: message });
+        setStep("error");
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+
+    // USDC deposit path (approve -> deposit)
+    if (token === "USDC") {
+      try {
+        setIsLoading(true);
+        setStep("processing");
+        const res = await depositUSDC(amount);
+        if (res.success) {
+          setResult({ hash: res.hash });
+          setStep("success");
+          toast.success("Deposit transaction sent");
+        } else {
+          setResult({ error: res.error });
+          setStep("error");
+        }
+      } catch (err) {
+        const message = (err as Error)?.message || "Unknown error";
+        setResult({ error: message });
+        setStep("error");
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+
+    // Other assets not implemented yet
+    toast.info("Deposit for selected asset not implemented yet. Try ETH.");
   };
 
   const resetModal = () => {
@@ -173,14 +225,26 @@ export function DepositModal({ isOpen, onClose }: DepositModalProps) {
                     {amount} {token} deposited to vault
                   </p>
                   {result.hash && (
-                    <code className="text-xs text-cyan-400 bg-[#101c1a] px-2 py-1 rounded">
-                      {result.hash.slice(0, 10)}...{result.hash.slice(-8)}
-                    </code>
+                    <div className="space-y-2">
+                      <code className="text-xs text-cyan-400 bg-[#101c1a] px-2 py-1 rounded block">
+                        {result.hash.slice(0, 10)}...{result.hash.slice(-8)}
+                      </code>
+                      <a
+                        href={`${SEPOLIA_CHAIN.explorerUrl.replace(/\/$/, "")}/tx/${result.hash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block text-xs text-black bg-cyan-400 hover:bg-cyan-300 px-3 py-2 rounded mt-1"
+                      >
+                        View on Explorer
+                      </a>
+                    </div>
                   )}
                 </div>
-                <Button onClick={handleClose} variant="outline" className="mt-4">
-                  Close
-                </Button>
+                <div className="flex gap-2 mt-4">
+                  <Button onClick={handleClose} variant="outline">
+                    Close
+                  </Button>
+                </div>
               </div>
             )}
 

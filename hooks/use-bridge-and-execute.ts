@@ -36,7 +36,7 @@ export const useBridgeAndExecute = () => {
     async (
   token: string, // e.g., 'USDC' | 'ETH' | 'WETH'
   amount: string, // human-readable, e.g., '100'
-  sourceChains: number[] = [1], // default Ethereum mainnet as source (will auto-derive if possible)
+  sourceChains: number[] = [SEPOLIA_CHAIN.id], // default to Ethereum Sepolia as source (will auto-derive if possible)
       executeContract?: ExecuteContractConfig,
       receiver?: `0x${string}` // optional receiver for execute step
     ): Promise<BridgeResult> => {
