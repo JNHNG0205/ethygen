@@ -60,6 +60,7 @@
     "lucide-react": "^0.454.0",
     "next": "15.2.4",
     "next-themes": "^0.4.6",
+    "ox": "^0.8.9",
     "permissionless": "latest",
     "react": "^18",
     "react-day-picker": "9.8.0",
