@@ -1,4 +1,4 @@
-# 🧬 Ethygen
+<img width="926" height="659" alt="image" src="https://github.com/user-attachments/assets/0c19cefe-a276-4b76-8035-dce080149af4" /><img width="926" height="659" alt="image" src="https://github.com/user-attachments/assets/89ead8d0-e400-4500-8580-c8f3e8797255" /># 🧬 Ethygen
 
 **Ethygen** is a gasless, permissionless DeFi platform that unifies cross-chain collateral, enables yield-bearing staking, and supports perpetual trading — all powered by **Avail Nexus**, **Pyth**, and **Envio**.
 
@@ -14,7 +14,7 @@
 
 ## 🧩 System Architecture
 
-> *[Placeholder for system architecture diagram]*
+
 
 **Main Components**
 
@@ -26,13 +26,8 @@
 | **Vault Contract (USDe)**                     | Holds USDe and manages staking/unstaking                          |
 | **Yield Engine**                              | Stakes USDe to earn yield and mints sUSDe                         |
 | **yUSDe Minting Module**                      | Issues yUSDe margin tokens at 0.8:1 ratio for trading             |
-<<<<<<< HEAD
-| **Perp DEX Smart Contract (on Base Sepolia)** | Executes perpetual trades using yUSDe                             |
-=======
-| **Perp DEX Smart Contract (on Ethereum Sepolia)** | Executes perpetual trades using yUSDe                             |
->>>>>>> integration
+| **Perp DEX Smart Contract                     | Executes perpetual trades using yUSDe                             |
 | **Pyth Oracle**                               | Provides real-time asset prices for accurate trading data         |
-| **Envio**                                     | Indexes on-chain events and provides analytics data for frontend  |
 
 ---
 
@@ -40,7 +35,6 @@
 
 ### **Deposit Flow**
 
-<<<<<<< HEAD
 1. **User deposits assets** (ETH, USDC, etc.) into their **Privy Smart Wallet**.  
 2. **Avail Nexus** aggregates balances across EVM chains and displays them as a **unified USDC balance**.  
 3. The user **bridges USDC → Base** and swaps to **USDe**, stored in the **Vault Contract**.  
@@ -55,35 +49,20 @@
 1. The **Perp DEX** uses **yUSDe** as collateral for margin trading.  
 2. Trades are executed on **Base Sepolia**, powered by **Pyth price feeds**.  
 3. Gains or losses are reflected in the **yUSDe balance**, not affecting the underlying yield stream of untraded funds.
-=======
-1. **User deposits assets** (ETH, USDC, etc.) into their **Privy Smart Wallet**.
-2. **Avail Nexus** aggregates all balances from multiple EVM chains and displays them as a **unified USDC balance**.
-3. The user **bridges USDC → Base chain** and swaps USDC → **USDe**, stored inside the **Vault Contract**.
-4. The **Vault** stakes USDe through the **Yield Engine**, minting **sUSDe** to represent staked positions.
-5. The user can then **swap sUSDe → yUSDe** (margin token) at a **0.8:1 ratio**, which is used for **perpetual trading**.
->>>>>>> integration
 
 ---
 
 ### **Withdraw Flow**
 
-<<<<<<< HEAD
 1. When users close trades, their **yUSDe balance (profit/loss adjusted)** is updated.  
 2. They can **redeem yUSDe → sUSDe** through the vault.  
 3. The vault **unstakes sUSDe → USDe**, returning yield-adjusted value.  
 4. Finally, the user **swaps USDe → Base USDC** for withdrawal.
-=======
-1. When the **user closes a trade**, they receive **yUSDe** (with profits or losses reflected in its value).
-2. The user can **redeem yUSDe → sUSDe** through the vault.
-3. The vault **unstakes sUSDe → USDe**, returning the user’s yield-adjusted balance.
-4. The user **swaps USDe → Base USDC**, completing the withdrawal process.
->>>>>>> integration
 
 ---
 
 ## 🧠 Example Scenarios
 
-<<<<<<< HEAD
 ### **Scenario 1: Idle Funds (No Trading)**
 
 * User mints **100 yUSDe** but does not open any trades.  
@@ -106,20 +85,6 @@
 * User’s trade moves against them → margin loss occurs.  
 * The corresponding amount of sUSDe is **burned** to cover losses.  
 * Remaining sUSDe continues to earn yield for the user.  
-=======
-### **Winning Trade**
-
-* User opens a long position with 80 yUSDe margin.
-* The market moves favorably → profit added to vault’s balance.
-* User closes trade and receives more yUSDe (reflecting gains).
-* They redeem yUSDe → sUSDe → USDe → Base USDC.
-
-### **Losing Trade**
-
-* User’s position moves against them → margin loss occurs.
-* The corresponding portion of **sUSDe** in the vault is burned to cover the loss.
-* User receives reduced yUSDe upon trade closure → redeems to smaller USDe amount.
->>>>>>> integration
 
 ---
 
@@ -129,19 +94,18 @@ Ethygen is built using:
 
 * **Avail Nexus** → For unified cross-chain collateral aggregation.
 * **Pyth** → For real-time, decentralized price feeds in perpetual trading.
-* **Envio** → For indexing and querying trading data efficiently.
 
-<<<<<<< HEAD
-Smart contracts are deployed on **Base Sepolia** testnet, and mock tokens are used for **USDe**, **sUSDe**, and **yUSDe** for simulation.
-=======
 Smart contracts are deployed on **Ethereum Sepolia** testnet, and mock tokens are used for **USDe**, **sUSDe**, and **yUSDe** for simulation.
->>>>>>> integration
 
 ---
 
 ## 🧱 Deployed Smart Contracts
 
-> *[Placeholder — Add deployed contract addresses once live]*
+USDe.sol: 0x5e034a923D3947A2fE04172EA9cB3D35EA1f2abA,
+YieldEngine.sol: 0x5E63123AB3970e4A25a17103A8552C4555f3C4B8
+YUSDe.sol: 0x21c4cE8cAEE307a47E1EC35De871b02580e6E6cE
+PerpDEX.sol: 0x2a0fADd0e2e918A5238991AD759c5a09F9A10942
+Vault.sol: 0xC8298b7abC7a9298936d3Fe0CE71c2e10919C203
 
 ---
 
@@ -149,7 +113,6 @@ Smart contracts are deployed on **Ethereum Sepolia** testnet, and mock tokens ar
 - **Frontend:** React / Next.js  
 - **Backend / Vault Logic:** Solidity (Ethereum / EVM chains)  
 - **Oracles:** Pyth Network  
-- **Indexing:** Envío  
 - **Cross-chain Collateral:** Avail Nexus  
 - **Wallets:** Privy Smart Wallets  
 - **Mock Tokens:** ERC-20 (sUSDe, USDe, yUSDe)  
