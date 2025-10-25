@@ -67,7 +67,6 @@ export function ContractBalances() {
           </div>
           <div className="text-right">
             <div className="font-mono text-sm">
-              {yieldEngine.sUSDeBalance && typeof yieldEngine.sUSDeBalance === 'bigint' ? formatEther(yieldEngine.sUSDeBalance) : '0.00'}
             </div>
             <div className="text-xs text-muted-foreground">sUSDe</div>
           </div>
@@ -88,7 +87,7 @@ export function ContractBalances() {
         </div>
 
         {/* Yield Information */}
-        {yieldEngine.userYield && yieldEngine.userYield > 0n && (
+        {yieldEngine.userYield && (yieldEngine.userYield as bigint) > 0n && (
           <div className="flex items-center justify-between pt-2 border-t">
             <div className="flex items-center space-x-2">
               <Badge variant="outline">Yield</Badge>
@@ -96,7 +95,7 @@ export function ContractBalances() {
             </div>
             <div className="text-right">
               <div className="font-mono text-sm text-green-600">
-                +{formatEther(yieldEngine.userYield)}
+                +{formatEther(yieldEngine.userYield as bigint)}
               </div>
               <div className="text-xs text-muted-foreground">USDe</div>
             </div>
@@ -117,7 +116,7 @@ export function ContractBalances() {
               <div>
                 <div className="text-muted-foreground">Total Staked</div>
                 <div className="font-mono">
-                  {typeof vault.vaultInfo[1] === 'bigint' ? formatEther(vault.vaultInfo[1]) : '0.00'}
+                  {typeof vault.vaultInfo[1] === 'bigint' ? formatEther(vault.vaultInfo[1] as bigint) : '0.00'}
                 </div>
               </div>
             </div>

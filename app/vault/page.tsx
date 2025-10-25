@@ -1,13 +1,9 @@
 import { TopNav } from "@/components/top-nav"
 import { BottomBar } from "@/components/bottom-bar"
-import { VaultOverview } from "@/components/vault-overview"
-import { VaultActions } from "@/components/vault-actions"
-import { VaultHistory } from "@/components/vault-history"
-import { ContractBalances } from "@/components/contract-balances"
-import { VaultOperations } from "@/components/vault-operations"
-import { PerpDEXTrading } from "@/components/perpdex-trading"
-import { EnhancedContractTest } from "@/components/enhanced-contract-test"
-import { TransactionStatus } from "@/components/transaction-status"
+import { DepositFlowDemo } from "@/components/deposit-flow-demo"
+import { TradingFlowDemo } from "@/components/trading-flow-demo"
+import { WithdrawFlowDemo } from "@/components/withdraw-flow-demo"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function VaultPage() {
   return (
@@ -19,30 +15,29 @@ export default function VaultPage() {
           {/* Page Header */}
           <div className="space-y-2">
             <h1 className="text-3xl font-bold text-foreground">Vault</h1>
-            <p className="text-muted-foreground">Deposit yUSDe to start trading with leverage</p>
+            <p className="text-muted-foreground">Deposit, trading, and withdraw</p>
           </div>
 
-          {/* Enhanced Contract Integration Test */}
-          <EnhancedContractTest />
+          {/* Flow Tabs */}
+          <Tabs defaultValue="deposit" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="deposit">💰 Deposit</TabsTrigger>
+              <TabsTrigger value="trading">📈 Trading</TabsTrigger>
+              <TabsTrigger value="withdraw">💸 Withdraw</TabsTrigger>
+            </TabsList>
 
-          {/* Contract Integration Components */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <ContractBalances />
-            <VaultOperations />
-            <PerpDEXTrading />
-          </div>
+            <TabsContent value="deposit" className="mt-6">
+              <DepositFlowDemo />
+            </TabsContent>
 
-          {/* Transaction Status */}
-          <TransactionStatus />
+            <TabsContent value="trading" className="mt-6">
+              <TradingFlowDemo />
+            </TabsContent>
 
-          {/* Original Vault Components */}
-          <VaultOverview />
-
-          {/* Deposit/Withdraw Actions */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <VaultActions />
-            <VaultHistory />
-          </div>
+            <TabsContent value="withdraw" className="mt-6">
+              <WithdrawFlowDemo />
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
 

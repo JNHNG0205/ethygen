@@ -32,7 +32,8 @@ export function TopNav() {
   const navLinks = [
     { href: "/", label: "Trade" },
     { href: "/vault", label: "Vault" },
-    { href: "/portfolio", label: "Portfolio" }, 
+    { href: "/portfolio", label: "Portfolio" },
+    { href: "/demo", label: "Demo" },
   ]
 
   return (
