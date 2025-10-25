@@ -3,7 +3,6 @@
 import React, { createContext, useContext, ReactNode, useState, useEffect, useMemo, useCallback, SetStateAction, Dispatch } from 'react';
 import { useAccount } from 'wagmi';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
-import { toast } from 'sonner';
 
 // Dynamic imports to avoid Buffer issues during module evaluation
 let NexusSDK: any = null;

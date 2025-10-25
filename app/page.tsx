@@ -5,6 +5,8 @@ import { BottomBar } from "@/components/bottom-bar"
 import { EnhancedOrderBook } from "@/components/enhanced-order-book"
 import { EnhancedTradeExecutor } from "@/components/enhanced-trade-executor"
 import { MarketOverview } from "@/components/market-overview"
+import { ContractBalances } from "@/components/contract-balances"
+import { NetworkSwitch } from "@/components/network-switch"
 import { useUnifiedPrice } from "@/hooks/use-unified-price"
 import dynamic from "next/dynamic"
 
@@ -27,6 +29,11 @@ export default function TradePage() {
     <div className="h-screen w-screen bg-black flex flex-col overflow-hidden">
       <TopNav />
       <DebugPriceFeed />
+      
+      {/* Network Switch - shows when not on Sepolia */}
+      <div className="px-4 py-2">
+        <NetworkSwitch />
+      </div>
 
       <main className="flex-1 mt-[60px] mb-[80px] overflow-hidden">
         {/* Market Overview Banner - Compact */}
@@ -35,17 +42,22 @@ export default function TradePage() {
         </div>
 
         <div className="h-[calc(100%-80px)] grid grid-cols-1 lg:grid-cols-12 gap-0">
-          {/* Chart - 66.67% on desktop */}
-          <div className="lg:col-span-8 border-r border-[#1e1e1e] h-full">
+          {/* Chart - 50% on desktop */}
+          <div className="lg:col-span-6 border-r border-[#1e1e1e] h-full">
             <PythChart />
           </div>
 
-          {/* Order Book - 16.67% on desktop (smaller) */}
-          <div className="lg:col-span-2 border-r border-[#1e1e1e] h-full hidden lg:block">
+          {/* Contract Balances - 25% on desktop */}
+          <div className="lg:col-span-3 border-r border-[#1e1e1e] h-full hidden lg:block p-4">
+            <ContractBalances />
+          </div>
+
+          {/* Order Book - 12.5% on desktop */}
+          <div className="lg:col-span-1 border-r border-[#1e1e1e] h-full hidden lg:block">
             <EnhancedOrderBook />
           </div>
 
-          {/* Trade Executor - 16.67% on desktop */}
+          {/* Trade Executor - 12.5% on desktop */}
           <div className="lg:col-span-2 h-full hidden lg:block">
             <EnhancedTradeExecutor />
           </div>

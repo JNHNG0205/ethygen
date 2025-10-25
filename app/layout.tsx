@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Inter, JetBrains_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import PrivyProviderWrapper from "@/providers/privy-provider"
+import { ContractsProvider } from "@/providers/contracts-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { Toaster as SonnerToaster } from "@/components/ui/sonner"
 import "./globals.css"
@@ -32,11 +33,13 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body className="font-sans antialiased">
         <PrivyProviderWrapper>
-          {children}
+          <ContractsProvider>
+            {children}
 
-          {/* UI + Analytics */}
-          <Toaster />
-          <SonnerToaster richColors position="top-right" />
+            {/* UI + Analytics */}
+            <Toaster />
+            <SonnerToaster richColors position="top-right" />
+          </ContractsProvider>
         </PrivyProviderWrapper>
 
         <Analytics />

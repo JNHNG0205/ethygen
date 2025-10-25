@@ -3,6 +3,11 @@ import { BottomBar } from "@/components/bottom-bar"
 import { VaultOverview } from "@/components/vault-overview"
 import { VaultActions } from "@/components/vault-actions"
 import { VaultHistory } from "@/components/vault-history"
+import { ContractBalances } from "@/components/contract-balances"
+import { VaultOperations } from "@/components/vault-operations"
+import { PerpDEXTrading } from "@/components/perpdex-trading"
+import { EnhancedContractTest } from "@/components/enhanced-contract-test"
+import { TransactionStatus } from "@/components/transaction-status"
 
 export default function VaultPage() {
   return (
@@ -17,7 +22,20 @@ export default function VaultPage() {
             <p className="text-muted-foreground">Deposit yUSDe to start trading with leverage</p>
           </div>
 
-          {/* Vault Overview */}
+          {/* Enhanced Contract Integration Test */}
+          <EnhancedContractTest />
+
+          {/* Contract Integration Components */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <ContractBalances />
+            <VaultOperations />
+            <PerpDEXTrading />
+          </div>
+
+          {/* Transaction Status */}
+          <TransactionStatus />
+
+          {/* Original Vault Components */}
           <VaultOverview />
 
           {/* Deposit/Withdraw Actions */}
