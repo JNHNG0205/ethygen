@@ -1,185 +1,219 @@
-'use client'
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
-import { usePrivy, useWallets } from '@privy-io/react-auth'
-import { toast } from 'sonner'
+'use client';
 
-const NexusContext = createContext<any>(null);
+import React, { createContext, useContext, ReactNode, useState, useEffect, useMemo, useCallback, SetStateAction, Dispatch } from 'react';
+import { useAccount } from 'wagmi';
+import { usePrivy, useWallets } from '@privy-io/react-auth';
+import { toast } from 'sonner';
 
-// We'll import the SDK dynamically inside effects to avoid SSR issues
+// Dynamic imports to avoid Buffer issues during module evaluation
+let NexusSDK: any = null;
 
-export const NexusProvider = ({ children }: { children: ReactNode }) => {
-  const [sdkInstance, setSdkInstance] = useState<any>(null);
+// Load SDK types dynamically with Buffer polyfill
+const loadNexusTypes = async () => {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    // Ensure Buffer is available before loading SDK
+    if (!window.Buffer) {
+      const { Buffer } = await import('buffer');
+      window.Buffer = Buffer;
+    }
+    
+    const nexusCore = await import('@avail-project/nexus-core');
+    NexusSDK = nexusCore.NexusSDK;
+  } catch (error) {
+    console.error('Failed to load Nexus SDK types:', error);
+    throw error;
+  }
+};
+
+interface NexusContextType {
+  nexusSdk: any;
+  isInitialized: boolean;
+  allowanceModal: any;
+  setAllowanceModal: Dispatch<SetStateAction<any>>;
+  intentModal: any;
+  setIntentModal: Dispatch<SetStateAction<any>>;
+  cleanupSDK: () => void;
+  unifiedBalances: any[];
+  setUnifiedBalances: Dispatch<SetStateAction<any[]>>;
+  balances: any[];
+  isLoading: boolean;
+  error: string | null;
+  refreshBalances: () => void;
+}
+
+const NexusContext = createContext<NexusContextType | undefined>(undefined);
+
+interface NexusProviderProps {
+  children: ReactNode;
+}
+
+export const NexusProvider: React.FC<NexusProviderProps> = ({
+  children,
+}) => {
+  const [nexusSdk, setNexusSdk] = useState<any>(undefined);
+  const [isInitialized, setIsInitialized] = useState<boolean>(false);
+  const [allowanceModal, setAllowanceModal] = useState<any>(null);
+  const [intentModal, setIntentModal] = useState<any>(null);
+  const [unifiedBalances, setUnifiedBalances] = useState<any[]>([]);
   const [balances, setBalances] = useState<any[]>([]);
-  const [isInitialized, setIsInitialized] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [initTried, setInitTried] = useState(false);
 
-  const { authenticated } = usePrivy()
-  const { wallets } = useWallets()
+  const { authenticated } = usePrivy();
+  const { wallets } = useWallets();
+  const { connector } = useAccount();
+
   // Prefer embedded Privy wallet if present, else first wallet
-  const primaryWallet: any = wallets.find((w: any) => w.walletClientType === 'privy') || wallets[0]
-  const walletProviderGetter: any = (primaryWallet && (primaryWallet as any).getEthereumProvider) || null
-  const fallbackProvider: any = (primaryWallet as any)?.provider || null
-  const address: string | undefined = (primaryWallet as any)?.address || wallets[0]?.address
+  const primaryWallet: any = wallets.find((w: any) => w.walletClientType === 'privy') || wallets[0];
+  const address: string | undefined = (primaryWallet as any)?.address || wallets[0]?.address;
 
-  // Init SDK on wallet connect (per tutorial)
-  useEffect(() => {
-  if (!authenticated || sdkInstance) return
-
-    const initSdk = async () => {
+  const initializeSDK = useCallback(async () => {
+    if (authenticated && !nexusSdk && connector) {
       try {
-        setIsLoading(true)
-        const mod = await import('@avail-project/nexus')
-
-        // Resolve an EIP-1193 provider from Privy wallet
-        const provider = walletProviderGetter
-          ? await walletProviderGetter.call(primaryWallet)
-          : fallbackProvider
-
-        if (!provider) throw new Error('No EIP-1193 provider available')
-
-        // Build SDK instance using official NexusSDK constructor
-        const buildInstance = (m: any) => {
-          if (m?.NexusSDK && typeof m.NexusSDK === 'function') {
-            return new m.NexusSDK({ network: 'testnet', debug: true })
-          }
-          if (m?.default?.NexusSDK && typeof m.default.NexusSDK === 'function') {
-            return new m.default.NexusSDK({ network: 'testnet', debug: true })
-          }
-          console.error('[Nexus] NexusSDK not found. Keys:', Object.keys(m || {}))
-          throw new Error('NexusSDK not found in module')
+        // Load Nexus SDK types first
+        await loadNexusTypes();
+        
+        if (!NexusSDK) {
+          throw new Error("Failed to load Nexus SDK");
         }
 
-        const instance = buildInstance(mod as any)
+        // Get the EIP-1193 provider from the connector
+        const isTestnet = process.env.NEXT_PUBLIC_ENABLE_TESTNET === "true";
+        console.log('Nexus SDK network mode:', isTestnet ? 'testnet' : 'mainnet');
+        const provider = (await connector.getProvider()) as any;
 
-        // Ensure provider is alive and chain is accessible before initializing
+        if (!provider) {
+          throw new Error("No EIP-1193 provider available");
+        }
+
+        const sdk = new NexusSDK({
+          network: isTestnet ? "testnet" : "mainnet",
+          debug: false, // Disable debug to reduce API calls
+        });
+
+        // Initialize SDK with error handling
         try {
-          if (typeof (provider as any)?.request === 'function') {
-            await (provider as any).request({ method: 'eth_chainId' }).catch(() => undefined)
-            await (provider as any).request({ method: 'eth_requestAccounts' }).catch(() => undefined)
+          await sdk.initialize(provider);
+          setNexusSdk(sdk);
+          setIsInitialized(true);
+          
+          console.log("Nexus SDK initialized successfully");
+          
+          // Set up hooks for smart wallet integration
+          sdk.setOnAllowanceHook(async (data: any) => {
+            // Auto-approve minimum allowances for smart wallets
+            data.allow(['min']);
+          });
+
+          sdk.setOnIntentHook((data: any) => {
+            // Auto-approve intents for smart wallets (gasless)
+            data.allow();
+          });
+
+          // Try to get supported chains (optional)
+          try {
+            const chains = sdk.utils.getSupportedChains();
+            console.log("Supported chains", chains);
+          } catch (error) {
+            console.warn('Could not get supported chains:', error);
           }
-        } catch {}
 
-        // Call SDK's initialize() method with provider (required per v1.1.0 docs)
-        const doInit = async () => {
-          if (typeof instance.initialize === 'function') {
-            await instance.initialize(provider)
-            console.log('[Nexus] SDK initialized with provider')
-          } else {
-            console.warn('[Nexus] No initialize method found')
-          }
+          // Balances will be fetched manually when needed via refreshBalances()
+        } catch (initError) {
+          console.error('SDK initialization failed:', initError);
+          throw initError;
         }
 
-        try {
-          await doInit()
-        } catch (e) {
-          console.warn('[Nexus] First initialize attempt failed, retrying once…', e)
-          await new Promise((r) => setTimeout(r, 1000))
-          await doInit()
+      } catch (error) {
+        console.error("Failed to initialize NexusSDK:", error);
+        setIsInitialized(false);
+        setError(error instanceof Error ? error.message : 'Unknown error');
+        
+        if (error instanceof Error && error.message.includes('Buffer')) {
+          console.error('Buffer polyfill issue detected. Please refresh the page.');
+        } else if (error instanceof Error && error.message.includes('404')) {
+          console.warn('Nexus SDK service not available. This may be expected in development.');
+          // Don't throw the error, just mark as not initialized
+          setIsInitialized(false);
         }
-
-        // Set auto-approval hooks after initialization
-        if (typeof instance.setOnAllowanceHook === 'function') {
-          instance.setOnAllowanceHook(async () => ({ allowance: 'min' }))
-        }
-        if (typeof instance.setOnIntentHook === 'function') {
-          instance.setOnIntentHook(async () => ({}))
-        }
-
-        setSdkInstance(instance)
-        setIsInitialized(true)
-        if (!initTried) toast.success('Nexus SDK initialized!')
-      } catch (err) {
-        const msg = (err as Error)?.message || 'Unknown error'
-        setError(msg)
-        if (!initTried) {
-          // Clarify common causes for CA init failures
-          const friendly = /Backend initialization failed|initialize CA/i.test(msg)
-            ? 'Failed to initialize Chain Abstraction. This is not due to zero balance. Please refresh or reconnect; it may be a temporary backend issue.'
-            : msg
-          toast.error('SDK init failed: ' + friendly)
-        }
-      } finally {
-        setIsLoading(false)
-        setInitTried(true)
       }
     }
+  }, [authenticated, nexusSdk, connector]);
 
-    void initSdk()
-  }, [authenticated, walletProviderGetter, fallbackProvider, sdkInstance, primaryWallet])
+  const cleanupSDK = useCallback(() => {
+    if (nexusSdk) {
+      nexusSdk.deinit();
+      setNexusSdk(undefined);
+      setIsInitialized(false);
+      setUnifiedBalances([]);
+      setBalances([]);
+    }
+  }, [nexusSdk]);
 
-  // Fetch balances (tutorial's fetchBalances)
-  const fetchBalances = async () => {
-    if (!sdkInstance || isLoading) return
+  // Fetch balances function
+  const refreshBalances = useCallback(async () => {
+    if (!nexusSdk || isLoading) return;
     try {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
-      // Resolve a compatible getUnifiedBalances function regardless of SDK surface
-      const resolveGetUnifiedBalances = (sdk: any) => {
-        const direct = sdk?.getUnifiedBalances
-        const nestedBalances = sdk?.balances?.getUnifiedBalances
-        const clientBalances = sdk?.client?.getUnifiedBalances
-        // Ensure correct `this` binding for instance methods
-        const anyExport = typeof direct === 'function' ? direct.bind(sdk)
-          : typeof nestedBalances === 'function' ? nestedBalances.bind(sdk?.balances)
-          : typeof clientBalances === 'function' ? clientBalances.bind(sdk?.client)
-          : null
-        return anyExport
-      }
-
-      const fn = resolveGetUnifiedBalances(sdkInstance)
-      if (!fn) {
-        console.error('[Nexus] getUnifiedBalances not found. SDK keys:', Object.keys(sdkInstance || {}))
-        throw new Error('Nexus SDK does not expose getUnifiedBalances')
-      }
-
-      // Try calling with parameters then fall back to no-arg
-      let unifiedBalances: any[] | undefined
-      try {
-        unifiedBalances = await fn({ address, network: 'testnet' })
-      } catch (paramErr) {
-        console.warn('[Nexus] Param call failed, trying no-arg:', paramErr)
-        unifiedBalances = await fn()
-      }
-      setBalances(unifiedBalances || [])
-      console.log('[Nexus] Unified balances:', unifiedBalances)
-      toast.success(`Fetched ${unifiedBalances?.length || 0} assets!`)
+      const balances = await nexusSdk.getUnifiedBalances();
+      setUnifiedBalances(balances);
+      setBalances(balances);
     } catch (err) {
-      const msg = (err as Error)?.message || 'Unknown error'
-      setError(msg)
-      console.error('[Nexus] Balance fetch failed:', err)
-      toast.error('Balance fetch failed: ' + msg)
+      const msg = (err as Error)?.message || 'Unknown error';
+      setError(msg);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  }, [nexusSdk, isLoading]);
 
-  // Refresh on init or manual (with delay to allow CA to fully initialize)
-  useEffect(() => {
-    if (isInitialized && !isLoading && sdkInstance) {
-      const timer = setTimeout(() => {
-        fetchBalances()
-      }, 500) // Small delay to ensure CA is ready
-      return () => clearTimeout(timer)
-    }
-  }, [isInitialized, sdkInstance])
-
-  // Reset on disconnect
   useEffect(() => {
     if (!authenticated) {
-      setBalances([])
-      setIsInitialized(false)
-      setSdkInstance(null)
+      cleanupSDK();
+    } else {
+      initializeSDK();
     }
-  }, [authenticated])
+
+    return () => {
+      cleanupSDK();
+    };
+  }, [authenticated, cleanupSDK, initializeSDK]);
+
+  // Remove automatic balance refresh - balances will be fetched manually when needed
+
+  const contextValue: NexusContextType = useMemo(
+    () => ({
+      nexusSdk,
+      isInitialized,
+      allowanceModal,
+      setAllowanceModal,
+      intentModal,
+      setIntentModal,
+      cleanupSDK,
+      unifiedBalances,
+      setUnifiedBalances,
+      balances,
+      isLoading,
+      error,
+      refreshBalances,
+    }),
+    [nexusSdk, isInitialized, allowanceModal, intentModal, cleanupSDK, unifiedBalances, balances, isLoading, error, refreshBalances],
+  );
 
   return (
-    <NexusContext.Provider value={{ sdk: sdkInstance, balances, isLoading, error, refreshBalances: fetchBalances, isInitialized }}>
+    <NexusContext.Provider value={contextValue}>
       {children}
     </NexusContext.Provider>
   );
 };
 
-export const useNexus = () => useContext(NexusContext);
+export const useNexus = () => {
+  const context = useContext(NexusContext);
+  if (context === undefined) {
+    throw new Error("useNexus must be used within a NexusProvider");
+  }
+  return context;
+};
