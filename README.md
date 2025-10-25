@@ -1,4 +1,4 @@
-<img width="926" height="659" alt="image" src="https://github.com/user-attachments/assets/0c19cefe-a276-4b76-8035-dce080149af4" /><img width="926" height="659" alt="image" src="https://github.com/user-attachments/assets/89ead8d0-e400-4500-8580-c8f3e8797255" /># 🧬 Ethygen
+# 🧬 Ethygen
 
 **Ethygen** is a gasless, permissionless DeFi platform that unifies cross-chain collateral, enables yield-bearing staking, and supports perpetual trading — all powered by **Avail Nexus**, **Pyth**, and **Envio**.
 
@@ -14,7 +14,7 @@
 
 ## 🧩 System Architecture
 
-
+<img width="926" height="659" alt="image" src="https://github.com/user-attachments/assets/0c19cefe-a276-4b76-8035-dce080149af4" />
 
 **Main Components**
 
