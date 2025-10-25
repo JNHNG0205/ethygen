@@ -28,7 +28,6 @@
 | **yUSDe Minting Module**                      | Issues yUSDe margin tokens at 0.8:1 ratio for trading             |
 | **Perp DEX Smart Contract (on Base Sepolia)** | Executes perpetual trades using yUSDe                             |
 | **Pyth Oracle**                               | Provides real-time asset prices for accurate trading data         |
-| **Envio**                                     | Indexes on-chain events and provides analytics data for frontend  |
 
 ---
 
@@ -95,7 +94,6 @@ Ethygen is built using:
 
 * **Avail Nexus** → For unified cross-chain collateral aggregation.
 * **Pyth** → For real-time, decentralized price feeds in perpetual trading.
-* **Envio** → For indexing and querying trading data efficiently.
 
 Smart contracts are deployed on **Base Sepolia** testnet, and mock tokens are used for **USDe**, **sUSDe**, and **yUSDe** for simulation.
 
@@ -111,7 +109,6 @@ Smart contracts are deployed on **Base Sepolia** testnet, and mock tokens are us
 - **Frontend:** React / Next.js  
 - **Backend / Vault Logic:** Solidity (Ethereum / EVM chains)  
 - **Oracles:** Pyth Network  
-- **Indexing:** Envío  
 - **Cross-chain Collateral:** Avail Nexus  
 - **Wallets:** Privy Smart Wallets  
 - **Mock Tokens:** ERC-20 (sUSDe, USDe, yUSDe)  
