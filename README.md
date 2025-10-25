@@ -6,9 +6,13 @@
 
 ## 🚩 Problem Statement
 
-> *[Placeholder]*
->
-> Add description of the problem Ethygen aims to solve — such as fragmentation of liquidity, idle collateral inefficiency, and complex cross-chain user experience.
+**1.⁠ ⁠Capital Inefficiency**
+- ⁠Many protocols force a trade-off: stake for yield or use for trading, but rarely both.
+- ⁠Assets locked in staking cannot easily be used for trading.
+
+**2.⁠ ⁠Fragmented Liquidity & Execution Inefficiency**
+- ⁠Liquidity is scattered across many chains and pools, resulting in high slippage and poor execution for traders.
+- DEXs often struggle to aggregate deep, usable liquidity compared to centralized venues.
 
 ---
 
